@@ -38,16 +38,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
       - name: Install Smithy CLI
-        uses: smithy-lang/setup-smithy-cli@v0.1.0
-        with:
-          version: "1.70.0"
-          config: packages/capabilities-spec/smithy-build.json
+        run: |
+          SMITHY_VERSION=1.70.0
+          curl -fsSL \
+            "https://github.com/smithy-lang/smithy/releases/download/${SMITHY_VERSION}/smithy-cli-linux-x86_64.zip" \
+            -o /tmp/smithy-cli.zip
+          mkdir -p "$HOME/smithy-cli"
+          unzip -qo /tmp/smithy-cli.zip -d "$HOME/smithy-cli"
+          echo "$HOME/smithy-cli/smithy-cli-linux-x86_64/bin" >> "$GITHUB_PATH"
+          smithy --version
 
       - name: Validate Smithy models
         working-directory: packages/capabilities-spec

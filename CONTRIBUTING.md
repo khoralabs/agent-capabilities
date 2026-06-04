@@ -31,7 +31,7 @@ If you changed Smithy models (requires [Smithy CLI](https://smithy.io/2.0/guides
 cd packages/capabilities-spec && smithy validate model
 ```
 
-CI installs Smithy via `smithy-lang/setup-smithy-cli@v0.1.0` (see `.github/workflows/ci.yml`).
+CI installs Smithy CLI 1.70.0 from GitHub releases (linux x86_64 zip; see `.github/workflows/ci.yml`).
 
 If you changed public TypeScript APIs, update `CHANGELOG.md` under **Unreleased** (see existing entries for breaking vs additive changes).
 
