@@ -3,12 +3,29 @@
   "version": "0.1.0",
   "description": "Smithy models for agent capabilities interchange and persistence.",
   "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khoralabs/agent-capabilities.git",
+    "directory": "packages/capabilities-spec"
+  },
+  "homepage": "https://github.com/khoralabs/agent-capabilities/tree/main/packages/capabilities-spec#readme",
+  "bugs": "https://github.com/khoralabs/agent-capabilities/issues",
+  "keywords": [
+    "agent",
+    "smithy",
+    "capabilities",
+    "attribution",
+    "openapi"
+  ],
   "files": [
     "model",
     "smithy-build.json",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "validate": "smithy validate model"
+    "validate": "smithy validate model",
+    "prepublishOnly": "smithy validate model"
   }
 }

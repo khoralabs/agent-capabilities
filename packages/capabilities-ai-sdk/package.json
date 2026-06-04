@@ -1,16 +1,35 @@
 {
   "name": "@khoralabs/agent-capabilities-ai-sdk",
   "version": "0.1.0",
-  "description": "Vercel AI SDK adapter for @khoralabs/agent-capabilities ToolSpec values.",
+  "description": "Vercel AI SDK adapter for @khoralabs/agent-capabilities ToolSpec values (beta).",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "engines": {
     "node": ">=18"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khoralabs/agent-capabilities.git",
+    "directory": "packages/capabilities-ai-sdk"
+  },
+  "homepage": "https://github.com/khoralabs/agent-capabilities/tree/main/packages/capabilities-ai-sdk#readme",
+  "bugs": "https://github.com/khoralabs/agent-capabilities/issues",
+  "keywords": [
+    "agent",
+    "ai-sdk",
+    "vercel",
+    "tools",
+    "capabilities",
+    "policy"
+  ],
+  "publishConfig": {
+    "tag": "beta"
+  },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -25,7 +44,8 @@
     "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "bun run build",
     "test": "bun test",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "example:evaluate": "bun run examples/01-evaluate-to-ai-sdk.ts"
   },
   "dependencies": {
     "@khoralabs/agent-capabilities": "workspace:*",

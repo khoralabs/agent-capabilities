@@ -8,9 +8,9 @@ Licensed under [MIT](LICENSE). See [CHANGELOG.md](CHANGELOG.md) for releases.
 
 | Package | Description |
 |---------|-------------|
-| [`@khoralabs/agent-capabilities`](packages/capabilities) | Core library |
-| [`@khoralabs/agent-capabilities-spec`](packages/capabilities-spec) | Smithy wire models |
-| [`@khoralabs/agent-capabilities-ai-sdk`](packages/capabilities-ai-sdk) | Vercel AI SDK adapter |
+| [`@khoralabs/agent-capabilities`](packages/capabilities) | Core library (stable `0.1.x`) |
+| [`@khoralabs/agent-capabilities-spec`](packages/capabilities-spec) | Smithy wire models (source-only npm tarball) |
+| [`@khoralabs/agent-capabilities-ai-sdk`](packages/capabilities-ai-sdk) | Vercel AI SDK adapter (**npm `beta` tag** for `0.1.x`) |
 
 ## Development
 

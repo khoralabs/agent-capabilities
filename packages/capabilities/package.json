@@ -8,9 +8,25 @@
   "engines": {
     "node": ">=18"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khoralabs/agent-capabilities.git",
+    "directory": "packages/capabilities"
+  },
+  "homepage": "https://github.com/khoralabs/agent-capabilities/tree/main/packages/capabilities#readme",
+  "bugs": "https://github.com/khoralabs/agent-capabilities/issues",
+  "keywords": [
+    "agent",
+    "tools",
+    "capabilities",
+    "attribution",
+    "policy",
+    "standard-schema"
+  ],
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

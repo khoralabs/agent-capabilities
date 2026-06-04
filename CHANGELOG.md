@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- v0.1 OSS publish metadata: `LICENSE` + `repository`/`files` on publishable packages; expanded `capabilities-spec` README (logical Smithy services); `@khoralabs/agent-capabilities-ai-sdk` README, `example:evaluate`, npm `publishConfig.tag: beta`.
 - **Breaking:** Session hook `onAfterAgent` renamed to `onBeforeContext` (runs after `onStart`, before merged session `context`).
 - `@khoralabs/agent-capabilities-ai-sdk` uses `gateToolPoliciesAtExecute` instead of unconditional re-evaluation.
 - Tool static hash includes `policyBindings` (id + executeBinding).
