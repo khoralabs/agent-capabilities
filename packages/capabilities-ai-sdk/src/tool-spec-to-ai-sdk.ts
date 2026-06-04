@@ -2,10 +2,7 @@
  * Maps evaluated `@khoralabs/agent-capabilities` {@link ToolSpec} into Vercel AI SDK {@link tool}.
  */
 
-import type {
-  ToolRuntimeContext,
-  ToolSpec,
-} from "@khoralabs/agent-capabilities";
+import type { ToolRuntimeContext, ToolSpec } from "@khoralabs/agent-capabilities";
 import { type Tool, tool } from "ai";
 
 export function toolSpecToAiTool(

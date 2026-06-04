@@ -1,15 +1,24 @@
 {
-  "name": "@khoralabs/agent-capabilities",
-  "module": "index.ts",
+  "name": "@khoralabs/agent-capabilities-workspace",
+  "private": true,
   "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest",
-    "bun-types": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "prepare": "husky",
+    "build": "bun run --filter '@khoralabs/agent-capabilities' build && bun run --filter '@khoralabs/agent-capabilities-ai-sdk' build",
+    "test": "bun run --filter '@khoralabs/agent-capabilities' test && bun run --filter '@khoralabs/agent-capabilities-ai-sdk' test",
+    "typecheck": "bun run --filter '@khoralabs/agent-capabilities' typecheck && bun run --filter '@khoralabs/agent-capabilities-ai-sdk' typecheck",
+    "format": "biome check --write .",
+    "format:check": "biome check .",
+    "lint": "biome check ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.0",
+    "@types/bun": "latest",
+    "bun-types": "latest",
+    "husky": "^9.1.7",
+    "typescript": "^5"
+  }
 }

@@ -1,14 +1,15 @@
 /**
- * Bottom-up capabilities: static hash from the composable tree, runtime hash from enabled tools.
+ * One-turn capture: AgentSnapshotEnvelope + live tools for the same evaluation.
+ * Run: bun run example:capabilities
  */
 import {
-  collectToolStaticHashes,
-  computeRuntimeHash,
+  AGENT_SNAPSHOT_ENVELOPE_VERSION,
+  captureAgentSnapshotEnvelope,
   createRegisteredAgent,
 } from "../src/index.js";
 import type { StandardSchemaV1 } from "../src/standard-schema.js";
 import { tool } from "../src/tool/tool.js";
-import { evaluateComposable, toolkit } from "../src/toolkit/toolkit.js";
+import { toolkit } from "../src/toolkit/toolkit.js";
 
 const schema: StandardSchemaV1<{ n: number }> = {
   "~standard": {
@@ -30,19 +31,24 @@ const t = tool({
 
 const graph = toolkit([t], { name: "demo" });
 
-const { agent, staticHash } = await createRegisteredAgent({
+const { agent } = await createRegisteredAgent({
   agentId: "demo-agent",
   name: "Demo",
   instructions: [],
   rootComposable: graph,
 });
 
-const evaluated = await evaluateComposable(graph, { env: {} });
-const nameToStaticHash = await collectToolStaticHashes(graph);
-const runtimeHash = await computeRuntimeHash(
-  Object.keys(evaluated.tools),
-  nameToStaticHash,
-  evaluated.tools,
-);
+const { envelope, link, evaluatedTools } = await captureAgentSnapshotEnvelope({
+  agent,
+  ctx: { env: {} },
+  sessionContext: { messageId: "msg-1" },
+});
 
-console.log({ agentId: agent.agentId, staticHash, runtimeHash });
+console.log({
+  schemaVersion: envelope.schemaVersion,
+  expectedVersion: AGENT_SNAPSHOT_ENVELOPE_VERSION,
+  agentId: agent.agentId,
+  staticHash: link.staticHash,
+  runtimeHash: link.runtimeHash,
+  toolNames: Object.keys(evaluatedTools),
+});

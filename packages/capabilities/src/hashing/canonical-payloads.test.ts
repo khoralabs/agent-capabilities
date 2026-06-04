@@ -2,7 +2,10 @@ import { describe, expect, test } from "bun:test";
 import type { StandardSchemaV1 } from "../standard-schema.js";
 import { tool } from "../tool/tool.js";
 import { evaluateComposable, toolkit } from "../toolkit/toolkit.js";
-import { runtimeCapabilityCanonicalPayload, toolSpecCanonicalPayload } from "./canonical-payloads.js";
+import {
+  runtimeCapabilityCanonicalPayload,
+  toolSpecCanonicalPayload,
+} from "./canonical-payloads.js";
 import { hashPlainObject } from "./hash.js";
 import {
   collectToolStaticHashes,

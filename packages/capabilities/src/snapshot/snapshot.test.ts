@@ -9,7 +9,11 @@ import type { StandardSchemaV1 } from "../standard-schema.js";
 import { tool } from "../tool/tool.js";
 import { evaluateComposable, toolkit } from "../toolkit/toolkit.js";
 import { affordancesToWire, capturePolicyResults, hydrateAffordances } from "./capture-hydrate.js";
-import { hashToolSpecWire, toolCapabilityPayloadFromWire, toolSpecToWire } from "./tool-spec-wire.js";
+import {
+  hashToolSpecWire,
+  toolCapabilityPayloadFromWire,
+  toolSpecToWire,
+} from "./tool-spec-wire.js";
 
 const schema: StandardSchemaV1<{ n: number }> = {
   "~standard": {

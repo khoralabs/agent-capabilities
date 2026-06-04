@@ -1,7 +1,14 @@
 {
   "name": "@khoralabs/agent-capabilities-spec",
-  "private": true,
+  "version": "0.1.0",
+  "description": "Smithy models for agent capabilities interchange and persistence.",
+  "license": "MIT",
+  "files": [
+    "model",
+    "smithy-build.json",
+    "README.md"
+  ],
   "scripts": {
-    "validate": "smithy validate model && smithy build"
+    "validate": "smithy validate model"
   }
 }

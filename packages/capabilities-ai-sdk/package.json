@@ -1,28 +1,45 @@
 {
   "name": "@khoralabs/agent-capabilities-ai-sdk",
-  "module": "src/index.ts",
+  "version": "0.1.0",
+  "description": "Vercel AI SDK adapter for @khoralabs/agent-capabilities ToolSpec values.",
+  "license": "MIT",
   "type": "module",
-  "private": true,
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "bun run build",
+    "test": "bun test",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@khoralabs/agent-capabilities": "workspace:*",
     "ai": "^6"
   },
-  "scripts": {
-    "test": "bun test"
-  },
   "devDependencies": {
     "@types/bun": "latest",
     "bun-types": "latest",
+    "typescript": "^5",
     "zod": "^4"
   },
   "peerDependencies": {
+    "@khoralabs/agent-capabilities": "^0.1.0",
+    "ai": "^6",
     "typescript": "^5"
   }
 }

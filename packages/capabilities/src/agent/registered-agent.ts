@@ -1,7 +1,7 @@
 import { hashPlainObject } from "../hashing/hash.js";
 import type { ToolSpec } from "../tool/types.js";
 import type { Composable } from "../toolkit/types.js";
-import type { AgentStaticProps, RegisteredAgent } from "./types";
+import type { AgentStaticProps, RegisteredAgent } from "./types.js";
 
 export type CreateRegisteredAgentArgs<Env> = {
   agentId: string;

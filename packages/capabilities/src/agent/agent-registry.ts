@@ -49,11 +49,7 @@ export type SessionRunner<
   Input = unknown,
   Output = unknown,
   Context extends SessionContext = SessionContext,
-> = (args: {
-  agent: RegisteredAgent;
-  input: Input;
-  context: Context;
-}) => MaybePromise<Output>;
+> = (args: { agent: RegisteredAgent; input: Input; context: Context }) => MaybePromise<Output>;
 
 /**
  * Runner type for {@link RegisterAgentOptions.run} / {@link RegisteredAgentEntry.run}.

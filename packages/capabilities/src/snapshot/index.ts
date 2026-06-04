@@ -4,6 +4,19 @@ export {
   type HydrateAffordancesBindTool,
   hydrateAffordances,
 } from "./capture-hydrate.js";
+export type {
+  CaptureAgentSnapshotEnvelopeArgs,
+  CaptureAgentSnapshotEnvelopeResult,
+  CaptureAgentTurnArgs,
+  CaptureAgentTurnResult,
+} from "./capture-turn.js";
+export {
+  AGENT_SNAPSHOT_ENVELOPE_VERSION,
+  captureAgentRuntimeSnapshot,
+  captureAgentSnapshotEnvelope,
+  registeredAgentToWire,
+  toolkitContextToWire,
+} from "./capture-turn.js";
 export {
   hashToolSpecWire,
   toolCapabilityPayloadFromWire,

@@ -11,10 +11,6 @@ export type {
   SessionRunner,
 } from "./agent/agent-registry.js";
 export { createAgentRegistry } from "./agent/agent-registry.js";
-export {
-  evaluateRegisteredAgentAffordances,
-  type RegisteredAgentAffordances,
-} from "./agent/evaluate-registered-agent-affordances.js";
 export type {
   CapabilityLinkField,
   CapabilityLinkFieldChange,
@@ -29,10 +25,14 @@ export {
   formatHashShort,
 } from "./agent/capability-diff.js";
 export type {
-  CreateCapabilityLinkArgs,
   CapabilityLink,
+  CreateCapabilityLinkArgs,
 } from "./agent/capability-link.js";
 export { computeFullCapabilityLink, createCapabilityLink } from "./agent/capability-link.js";
+export {
+  evaluateRegisteredAgentAffordances,
+  type RegisteredAgentAffordances,
+} from "./agent/evaluate-registered-agent-affordances.js";
 export {
   type CreateRegisteredAgentArgs,
   createRegisteredAgent,
@@ -57,8 +57,8 @@ export {
 } from "./hashing/invocation-context.js";
 export {
   collectToolStaticHashes,
-  computeRuntimeHash,
   computeRuntimeCapabilitiesFromEvaluation,
+  computeRuntimeHash,
   hashRuntimeToolBinding,
   hashToolSpecStatic,
   resolveRuntimeToolRefs,
@@ -71,6 +71,10 @@ export { policy } from "./policy/policy.js";
 export type {
   AgentRuntimeSnapshot,
   AgentSnapshotEnvelope,
+  CaptureAgentSnapshotEnvelopeArgs,
+  CaptureAgentSnapshotEnvelopeResult,
+  CaptureAgentTurnArgs,
+  CaptureAgentTurnResult,
   HydrateAffordancesBindTool,
   PolicyEvaluationSnapshot,
   PolicySnapshotMode,
@@ -79,11 +83,16 @@ export type {
   ToolSpecWire,
 } from "./snapshot/index.js";
 export {
+  AGENT_SNAPSHOT_ENVELOPE_VERSION,
   affordancesToWire,
+  captureAgentRuntimeSnapshot,
+  captureAgentSnapshotEnvelope,
   capturePolicyResults,
   hashToolSpecWire,
   hydrateAffordances,
+  registeredAgentToWire,
   toolCapabilityPayloadFromWire,
+  toolkitContextToWire,
   toolSpecToWire,
 } from "./snapshot/index.js";
 export type {
@@ -99,12 +108,12 @@ export type {
 export { withFormattedResults } from "./tool/output.js";
 export type { ExtractToolStaticEnv, ToolStaticProps } from "./tool/tool.js";
 export { tool } from "./tool/tool.js";
-export { hashToolComposableStatic } from "./tool/tool-static.js";
 export type {
   RegisteredToolEntry,
   ToolRegistry,
 } from "./tool/tool-registry.js";
 export { createToolRegistry } from "./tool/tool-registry.js";
+export { hashToolComposableStatic } from "./tool/tool-static.js";
 export { assembleToolkitAgentInstructions } from "./toolkit/assemble-toolkit-instructions.js";
 export type {
   AnyComposable,

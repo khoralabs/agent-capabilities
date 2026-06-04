@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
+  type CapabilityLinkField,
   diffCapabilityLinks,
   diffToolRefs,
   explainCapabilityLinkRelationship,
   formatHashShort,
-  type CapabilityLinkField,
 } from "./capability-diff.js";
 import type { CapabilityLink } from "./capability-link.js";
 

@@ -1,8 +1,5 @@
 import { expect, test } from "bun:test";
-import type {
-  ToolRuntimeContext,
-  ToolSpec,
-} from "@khoralabs/agent-capabilities";
+import type { ToolRuntimeContext, ToolSpec } from "@khoralabs/agent-capabilities";
 import { policy } from "@khoralabs/agent-capabilities";
 import z from "zod";
 import { toolSpecToAiTool } from "./tool-spec-to-ai-sdk.js";

@@ -1,7 +1,10 @@
 import type { ToolSpec } from "../tool/types.js";
 import type { AnyComposable, ComposableWithChildren } from "../toolkit/toolkit.js";
 import type { Composable, ToolkitContext } from "../toolkit/types.js";
-import { runtimeCapabilityCanonicalPayload, toolSpecCanonicalPayload } from "./canonical-payloads.js";
+import {
+  runtimeCapabilityCanonicalPayload,
+  toolSpecCanonicalPayload,
+} from "./canonical-payloads.js";
 import { hashPlainObject } from "./hash.js";
 
 /** Runtime-only binding (e.g. DB provenance head) layered on top of a tool’s static hash. */

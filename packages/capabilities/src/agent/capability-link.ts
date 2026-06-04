@@ -1,7 +1,7 @@
 import { computeInvocationContextHash } from "../hashing/invocation-context.js";
 import {
-  computeRuntimeHash,
   computeRuntimeCapabilitiesFromEvaluation,
+  computeRuntimeHash,
 } from "../hashing/runtime-hashes.js";
 import type { ToolSpec } from "../tool/types.js";
 import type { Composable, ToolkitContext } from "../toolkit/types.js";
@@ -42,7 +42,9 @@ export type CreateCapabilityLinkArgs = {
   invocationContextAllowlist?: string[];
 };
 
-export async function createCapabilityLink(args: CreateCapabilityLinkArgs): Promise<CapabilityLink> {
+export async function createCapabilityLink(
+  args: CreateCapabilityLinkArgs,
+): Promise<CapabilityLink> {
   const runtimeHash = await computeRuntimeHash(
     args.enabledToolNames,
     args.nameToStaticHash,

@@ -122,11 +122,44 @@ Grouped by role; full exports (including types like `ToolSpec`, `Composable`, `C
 
 - `withFormattedResults`
 
+### Capture one turn (persistence + same-turn LLM)
+
+- `AGENT_SNAPSHOT_ENVELOPE_VERSION` — current `AgentSnapshotEnvelope.schemaVersion` (`"1"`)
+- `captureAgentRuntimeSnapshot` — one evaluation pass → `AgentRuntimeSnapshot` + live `evaluatedTools` / `instructions` / `link` / `toolRefs`
+- `captureAgentSnapshotEnvelope` — same pass → full `AgentSnapshotEnvelope` (optional `sessionContext`, `includeStatic`)
+- `registeredAgentToWire` / `toolkitContextToWire` — wire helpers used by capture
+
+## Capture one turn for persistence
+
+For each message or job, call **`captureAgentSnapshotEnvelope`** (or **`captureAgentRuntimeSnapshot`** if you only need the runtime slice):
+
+```ts
+const { envelope, link, evaluatedTools, instructions } = await captureAgentSnapshotEnvelope({
+  agent,
+  ctx: { env: { userTier: "pro" }, agentId: agent.agentId, agentName: agent.name },
+  invocationContext: { subjectId: "user-1" }, // optional third fingerprint
+  sessionContext: { messageId: "msg-abc" },   // envelope.context (not hashed)
+  policyMode: "authoritative",
+});
+// Persist envelope (JSON) or Smithy CapabilityLinkRow fields from link + toolRefs
+// Use evaluatedTools + instructions for the LLM on this same turn
+```
+
+| Field | Role |
+|-------|------|
+| `invocationContext` | Hashed into `link.invocationHash` (tenant/subject/persona binding) |
+| `sessionContext` | Stored in `envelope.context` only; not part of capability hashes |
+| `runtime.toolkitContext` | JSON-safe `env` / `agentId` / `namespace` from `ToolkitContext` (hooks omitted) |
+| `runtime.affordances` | Wire tools for storage/replay via `hydrateAffordances` |
+| `evaluatedTools` | Live handlers for this turn (not persisted) |
+
+Use **`captureAgentRuntimeSnapshot`** when the static template is unchanged and you only append runtime rows. Use **`computeFullCapabilityLink`** when you only need hashes without a full wire snapshot.
+
 ## Mapping to persistence
 
 This package only computes hashes and payloads. A database may add its own ids (`registrationId`, `toolVersionId`, etc.). Host backends may define their own persistence schemas; those ids are **not** emitted here.
 
-**What to store:** for correlation, you typically persist `staticHash`, `runtimeHash`, and optionally `invocationHash` from `CapabilityLink` together with a JSON-safe snapshot of **tool affordances** and, if you need forensics, the **same** `invocationContext` object you hashed (or a host-defined `metadata` document); see `AgentSnapshotEnvelope` in the snapshot types. The Smithy `capabilities-spec` model describes optional rows (`CapabilityLinkRow`, transitions) for backends — not implemented in this package.
+**What to store:** prefer a full **`AgentSnapshotEnvelope`** from `captureAgentSnapshotEnvelope`, or at minimum `CapabilityLink` + `toolRefs` + wire affordances. If you need forensics, persist the **same** `invocationContext` object you passed to capture (or store it in host `metadata`). The Smithy `capabilities-spec` model describes optional rows (`CapabilityLinkRow`, transitions) for backends — not implemented in this package.
 
 ## Examples
 

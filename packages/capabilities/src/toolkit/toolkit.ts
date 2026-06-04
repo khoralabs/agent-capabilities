@@ -269,6 +269,8 @@ export function dynamicToolkit<const NAME extends string, Env = unknown>({
 export async function evaluateComposable<Tools extends Record<string, ToolSpec>, Env>(
   composable: Composable<{ kind: string; name: string }, Tools, Env>,
   ctx: ToolkitContext<Env>,
+  options?: { resolvedPolicies?: PolicyResultMap },
 ): Promise<ToolkitResult<Tools>> {
-  return composable.evaluate(ctx);
+  const resolved = options?.resolvedPolicies ?? new Map<SharedPolicy, boolean>();
+  return composable.evaluate(ctx, resolved);
 }

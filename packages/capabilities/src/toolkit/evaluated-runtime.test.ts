@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
   collectToolStaticHashes,
-  computeRuntimeHash,
   computeRuntimeCapabilitiesFromEvaluation,
+  computeRuntimeHash,
 } from "../hashing/runtime-hashes.js";
 import type { StandardSchemaV1 } from "../standard-schema.js";
 import { tool } from "../tool/tool.js";
