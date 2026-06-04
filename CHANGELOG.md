@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ToolRuntimeContext.resolvedPolicies`, `policyResults`, `policySnapshotMode` for shared evaluation cache.
 - [AI SDK policies](docs/ai-sdk-policies.md) guide.
 - OSS docs: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, [hashing](docs/hashing.md), [standard-schema](docs/standard-schema.md), [host-helpers](docs/host-helpers.md).
+- Capability diff CLI (`bun run capability-diff`) and `formatCapabilityDiffReport` / `buildCapabilityDiffJsonReport` exports.
+- Rich diff example: `bun run example:diff` (writes `examples/output/diff/*.json`, demonstrates runtime/policy, invocation, and static drift).
 
 ### Changed
 

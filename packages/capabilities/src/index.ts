@@ -13,14 +13,19 @@ export type {
 } from "./agent/agent-registry.js";
 export { createAgentRegistry } from "./agent/agent-registry.js";
 export type {
+  AffordancePolicyIdsChange,
+  AffordancePolicyIdsDiff,
   CapabilityLinkField,
   CapabilityLinkFieldChange,
   CapabilityLinksDiff,
+  PolicyEvaluationResultsDiff,
   ToolRefRow,
   ToolRefsDiff,
 } from "./agent/capability-diff.js";
 export {
+  diffAffordancePolicyIds,
   diffCapabilityLinks,
+  diffPolicyEvaluationSnapshots,
   diffToolRefs,
   explainCapabilityLinkRelationship,
   formatHashShort,
@@ -38,6 +43,16 @@ export {
   type CreateRegisteredAgentArgs,
   createRegisteredAgent,
 } from "./agent/registered-agent.js";
+export type {
+  CapabilityDiffJsonReport,
+  CapabilityDiffReportLabels,
+} from "./cli/capability-diff-report.js";
+export {
+  buildCapabilityDiffJsonReport,
+  formatCapabilityDiffReport,
+} from "./cli/capability-diff-report.js";
+export type { DiffInputKind, DiffSources } from "./cli/parse-diff-input.js";
+export { extractDiffSources, parseDiffInput } from "./cli/parse-diff-input.js";
 export type {
   RuntimeCapabilityCanonicalPayload,
   ToolCapabilityCanonicalPayload,

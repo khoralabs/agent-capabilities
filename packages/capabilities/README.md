@@ -112,6 +112,7 @@ Grouped by role; full exports (including types like `ToolSpec`, `Composable`, `C
 ### Dashboard-style helpers
 
 - `formatHashShort` / `diffToolRefs` / `diffCapabilityLinks` / `explainCapabilityLinkRelationship`
+- `formatCapabilityDiffReport` / `bun run capability-diff` — compare two link or envelope JSON files; see [capability diff CLI](../../docs/capability-diff-cli.md)
 
 ### Persistence (Smithy contract + `:memory:`)
 
@@ -186,6 +187,7 @@ Recommended keys and the split between hashed `invocationContext` and non-hashed
 bun run example:static
 bun run example:dynamic
 bun run example:capabilities
+bun run example:diff
 ```
 
 `01-static-toolkit.ts` / `02-dynamic-toolkit.ts` — evaluate composables and map tools via `@khoralabs/agent-capabilities-ai-sdk`.

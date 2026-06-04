@@ -28,7 +28,9 @@
     "typecheck": "tsc --noEmit",
     "example:static": "bun run examples/01-static-toolkit.ts",
     "example:dynamic": "bun run examples/02-dynamic-toolkit.ts",
-    "example:capabilities": "bun run examples/03-capability-snapshot.ts"
+    "example:capabilities": "bun run examples/03-capability-snapshot.ts",
+    "example:diff": "bun run examples/04-capability-diff.ts",
+    "capability-diff": "bun run src/cli/capability-diff.ts"
   },
   "devDependencies": {
     "@khoralabs/agent-capabilities-ai-sdk": "workspace:*",

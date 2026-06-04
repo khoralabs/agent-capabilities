@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
   type CapabilityLinkField,
+  diffAffordancePolicyIds,
   diffCapabilityLinks,
+  diffPolicyEvaluationSnapshots,
   diffToolRefs,
   explainCapabilityLinkRelationship,
   formatHashShort,
@@ -71,6 +73,30 @@ describe("diffCapabilityLinks", () => {
     const d = diffCapabilityLinks(a, b);
     expect(d.unchanged).not.toContain("runtimeHash");
     expect(d.changed.map((c) => c.field)).toContain("runtimeHash");
+  });
+});
+
+describe("diffPolicyEvaluationSnapshots", () => {
+  test("detects only-in-first, only-in-second, value changed", () => {
+    const d = diffPolicyEvaluationSnapshots(
+      { mode: "hint", results: { a: true, b: false } },
+      { mode: "hint", results: { b: true, c: false } },
+    );
+    expect(d.onlyInFirst).toEqual([{ policyId: "a", allowed: true }]);
+    expect(d.onlyInSecond).toEqual([{ policyId: "c", allowed: false }]);
+    expect(d.valueChanged).toEqual([{ policyId: "b", first: false, second: true }]);
+  });
+});
+
+describe("diffAffordancePolicyIds", () => {
+  test("detects tool only on one side and policy id changes", () => {
+    const d = diffAffordancePolicyIds(
+      { x: { policyIds: ["p1"] }, y: { policyIds: ["p1", "p2"] } },
+      { y: { policyIds: ["p2", "p3"] }, z: { policyIds: [] } },
+    );
+    expect(d.onlyInFirst).toEqual(["x"]);
+    expect(d.onlyInSecond).toEqual(["z"]);
+    expect(d.changed).toEqual([{ toolName: "y", added: ["p3"], removed: ["p1"] }]);
   });
 });
 

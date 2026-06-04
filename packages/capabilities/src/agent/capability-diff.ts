@@ -1,3 +1,4 @@
+import type { PolicyEvaluationSnapshot } from "../snapshot/types.js";
 import type { CapabilityLink } from "./capability-link.js";
 
 export type ToolRefRow = { toolKey: string; toolHash: string };
@@ -106,6 +107,87 @@ export function explainCapabilityLinkRelationship(a: CapabilityLink, b: Capabili
 /**
  * Abbreviated hash for tables (e.g. `abc123…fedcba`). Returns short strings unchanged.
  */
+/** Symmetric diff of policy evaluation `results` maps (keyed by policy id). */
+export type PolicyEvaluationResultsDiff = {
+  onlyInFirst: Array<{ policyId: string; allowed: boolean }>;
+  onlyInSecond: Array<{ policyId: string; allowed: boolean }>;
+  valueChanged: Array<{
+    policyId: string;
+    first: boolean;
+    second: boolean;
+  }>;
+};
+
+export function diffPolicyEvaluationSnapshots(
+  first: PolicyEvaluationSnapshot,
+  second: PolicyEvaluationSnapshot,
+): PolicyEvaluationResultsDiff {
+  const r1 = first.results;
+  const r2 = second.results;
+  const onlyInFirst: PolicyEvaluationResultsDiff["onlyInFirst"] = [];
+  const onlyInSecond: PolicyEvaluationResultsDiff["onlyInSecond"] = [];
+  const valueChanged: PolicyEvaluationResultsDiff["valueChanged"] = [];
+
+  for (const [policyId, allowed] of Object.entries(r1)) {
+    const other = r2[policyId];
+    if (other === undefined) {
+      onlyInFirst.push({ policyId, allowed });
+    } else if (other !== allowed) {
+      valueChanged.push({ policyId, first: allowed, second: other });
+    }
+  }
+  for (const [policyId, allowed] of Object.entries(r2)) {
+    if (r1[policyId] === undefined) {
+      onlyInSecond.push({ policyId, allowed });
+    }
+  }
+  return { onlyInFirst, onlyInSecond, valueChanged };
+}
+
+export type AffordancePolicyIdsChange = {
+  toolName: string;
+  added: string[];
+  removed: string[];
+};
+
+/** Per-tool symmetric diff of sorted `policyIds` on wire affordances. */
+export type AffordancePolicyIdsDiff = {
+  onlyInFirst: string[];
+  onlyInSecond: string[];
+  changed: AffordancePolicyIdsChange[];
+};
+
+export function diffAffordancePolicyIds(
+  firstTools: Record<string, { policyIds: string[] }>,
+  secondTools: Record<string, { policyIds: string[] }>,
+): AffordancePolicyIdsDiff {
+  const names = new Set([...Object.keys(firstTools), ...Object.keys(secondTools)]);
+  const onlyInFirst: string[] = [];
+  const onlyInSecond: string[] = [];
+  const changed: AffordancePolicyIdsChange[] = [];
+
+  for (const toolName of [...names].sort((a, b) => a.localeCompare(b))) {
+    const t1 = firstTools[toolName];
+    const t2 = secondTools[toolName];
+    if (!t1) {
+      onlyInSecond.push(toolName);
+      continue;
+    }
+    if (!t2) {
+      onlyInFirst.push(toolName);
+      continue;
+    }
+    const p1 = new Set(t1.policyIds);
+    const p2 = new Set(t2.policyIds);
+    const added = [...p2].filter((id) => !p1.has(id)).sort((a, b) => a.localeCompare(b));
+    const removed = [...p1].filter((id) => !p2.has(id)).sort((a, b) => a.localeCompare(b));
+    if (added.length > 0 || removed.length > 0) {
+      changed.push({ toolName, added, removed });
+    }
+  }
+  return { onlyInFirst, onlyInSecond, changed };
+}
+
 export function formatHashShort(
   hash: string,
   options?: { prefix?: number; suffix?: number },
