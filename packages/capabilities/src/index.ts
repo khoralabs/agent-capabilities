@@ -82,10 +82,12 @@ export {
   registeredAgentToRegistrationRow,
 } from "./persistence/index.js";
 export type { AgentCapabilitiesPersistence } from "./persistence/interface.js";
+export { gateToolPoliciesAtExecute } from "./policy/execute-gate.js";
 export {
   evaluatePolicyWithHooks,
   mergeToolPipelineHooks,
 } from "./policy/pipeline-hooks.js";
+export type { PolicyOptions } from "./policy/policy.js";
 export { policy } from "./policy/policy.js";
 export type {
   AgentRuntimeSnapshot,
@@ -153,6 +155,7 @@ export type {
   Composable,
   PolicyEvaluatedPayload,
   PolicyEvaluatedPhase,
+  PolicyExecuteBinding,
   PolicyResultMap,
   RegisteredAgent,
   SharedPolicy,

@@ -2,7 +2,11 @@
  * Maps evaluated `@khoralabs/agent-capabilities` {@link ToolSpec} into Vercel AI SDK {@link tool}.
  */
 
-import type { ToolRuntimeContext, ToolSpec } from "@khoralabs/agent-capabilities";
+import {
+  gateToolPoliciesAtExecute,
+  type ToolRuntimeContext,
+  type ToolSpec,
+} from "@khoralabs/agent-capabilities";
 import { type Tool, tool } from "ai";
 
 export function toolSpecToAiTool(
@@ -13,11 +17,7 @@ export function toolSpecToAiTool(
     description: spec.description,
     inputSchema: spec.inputSchema as Tool<unknown, unknown>["inputSchema"],
     execute: async (input: unknown, options) => {
-      for (const p of spec.policies ?? []) {
-        if (!(await p.evaluate(runtime.env))) {
-          throw new Error(`Policy denied: ${p.id}`);
-        }
-      }
+      await gateToolPoliciesAtExecute({ spec, runtime });
       return spec.handler(runtime, input, options);
     },
   });

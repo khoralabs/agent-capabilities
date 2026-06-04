@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Per-policy `executeBinding` (`snapshot` | `live`) on `policy()`; `gateToolPoliciesAtExecute` for AI SDK execute boundary.
+- `ToolRuntimeContext.resolvedPolicies`, `policyResults`, `policySnapshotMode` for shared evaluation cache.
+- [AI SDK policies](docs/ai-sdk-policies.md) guide.
+
 ### Changed
 
 - **Breaking:** Session hook `onAfterAgent` renamed to `onBeforeContext` (runs after `onStart`, before merged session `context`).
+- `@khoralabs/agent-capabilities-ai-sdk` uses `gateToolPoliciesAtExecute` instead of unconditional re-evaluation.
+- Tool static hash includes `policyBindings` (id + executeBinding).
 
 ## [0.1.0] - 2026-06-04
 

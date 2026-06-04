@@ -62,6 +62,12 @@ export function tool<
   };
 
   const policyIds = [...policies.map((p) => p.id)].sort((a, b) => a.localeCompare(b));
+  const policyBindings =
+    policies.length > 0
+      ? [...policies]
+          .map((p) => ({ id: p.id, executeBinding: p.executeBinding ?? "live" }))
+          .sort((a, b) => a.id.localeCompare(b.id))
+      : undefined;
   const policiesSorted =
     policies.length > 0 ? [...policies].sort((a, b) => a.id.localeCompare(b.id)) : undefined;
 
@@ -73,6 +79,7 @@ export function tool<
       schema: schemaToHashInput(args.inputSchema),
       instructions: [...(args.instructions ?? [])].sort((a, b) => a.localeCompare(b)),
       policies: policyIds,
+      policyBindings,
     });
   }
 

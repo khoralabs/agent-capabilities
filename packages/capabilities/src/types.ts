@@ -2,6 +2,7 @@ export type { AgentStaticProps, RegisteredAgent } from "./agent/types.js";
 export type {
   PolicyEvaluatedPayload,
   PolicyEvaluatedPhase,
+  PolicyExecuteBinding,
   PolicyResultMap,
   SharedPolicy,
   ToolExecutedPayload,

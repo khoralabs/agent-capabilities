@@ -27,4 +27,4 @@ bun run build
 
 Publishable packages emit `dist/` via `tsc` (Node 18+). See [`packages/capabilities/README.md`](packages/capabilities/README.md) for API docs.
 
-**Docs:** [persistence](docs/persistence.md), [invocation context](docs/invocation-context.md), [envelope schema versions](docs/schema-versions.md).
+**Docs:** [persistence](docs/persistence.md), [AI SDK policies](docs/ai-sdk-policies.md), [invocation context](docs/invocation-context.md), [envelope schema versions](docs/schema-versions.md).

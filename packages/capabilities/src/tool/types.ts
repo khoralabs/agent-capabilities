@@ -1,15 +1,23 @@
-import type { SharedPolicy } from "../policy/types.js";
+import type { PolicyResultMap, SharedPolicy, ToolPipelineHooks } from "../policy/types.js";
 import type { StandardSchemaV1 } from "../standard-schema.js";
 
 /**
- * Per-invocation context passed to {@link ToolSpec.handler}. Same shape as {@link ToolkitContext}
- * (typically the env slice used when the tool runs).
+ * Per-invocation context passed to {@link ToolSpec.handler} and AI SDK adapters.
+ * Pass the same `env` and {@link PolicyResultMap} from `evaluateComposable` when using snapshot policies.
  */
 export type ToolRuntimeContext<Env = unknown> = {
   env: Env;
   namespace?: string;
   agentId?: string;
   agentName?: string;
+  /** From `evaluateComposable(..., { resolvedPolicies })` — shared with snapshot-bound policies. */
+  resolvedPolicies?: PolicyResultMap;
+  /** Frozen policy id → allowed (replay); used when policy objects are not shared in-process. */
+  policyResults?: Record<string, boolean>;
+  /** When `authoritative`, snapshot policies without a cache entry deny at execute. */
+  policySnapshotMode?: "authoritative" | "hint";
+  /** Optional hooks for `live` / fallback policy evaluation at execute (`phase: "execute"`). */
+  pipelineHooks?: ToolPipelineHooks;
 };
 
 /**
@@ -25,8 +33,8 @@ export type ToolSpec = {
   /** Sorted policy ids gating this tool (for runtime hashing parity with static tool hash). */
   policyIds?: string[];
   /**
-   * Same {@link SharedPolicy} instances as the defining composable; re-evaluated against
-   * {@link ToolRuntimeContext.env} before each AI SDK tool execution (see capabilities-zod adapters).
+   * Same {@link SharedPolicy} instances as the defining composable.
+   * Execute-time enforcement uses {@link PolicyExecuteBinding} and {@link ToolRuntimeContext.resolvedPolicies}.
    */
   policies?: SharedPolicy[];
   handler: (

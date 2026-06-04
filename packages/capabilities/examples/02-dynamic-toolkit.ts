@@ -6,8 +6,10 @@ import { toolMapToAiTools } from "@khoralabs/agent-capabilities-ai-sdk";
 import { dynamicToolkit, evaluateComposable, policy, tool } from "../src/index";
 import { numberInputSchema } from "./standard-schema-helpers";
 
-const gate = policy("feature-add", async (env: { features: string[] }) =>
-  Promise.resolve(env.features.includes("add")),
+const gate = policy(
+  "feature-add",
+  async (env: { features: string[] }) => Promise.resolve(env.features.includes("add")),
+  { executeBinding: "snapshot" },
 );
 
 const add = tool({
@@ -28,11 +30,17 @@ const root = dynamicToolkit({
   },
 });
 
-const result = await evaluateComposable(root, {
-  env: { features: ["add"] },
-});
+const resolved = new Map();
+const result = await evaluateComposable(
+  root,
+  { env: { features: ["add"] } },
+  { resolvedPolicies: resolved },
+);
 console.log("tools:", Object.keys(result.tools));
 console.log(await result.tools.add?.handler({ env: { features: ["add"] } }, 41, undefined));
 
-const aiTools = toolMapToAiTools(result.tools, { env: { features: ["add"] } });
+const aiTools = toolMapToAiTools(result.tools, {
+  env: { features: ["add"] },
+  resolvedPolicies: resolved,
+});
 console.log("ai tools:", Object.keys(aiTools));

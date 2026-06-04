@@ -85,7 +85,8 @@ Grouped by role; full exports (including types like `ToolSpec`, `Composable`, `C
 
 - `tool` / `toolkit` / `dynamicToolkit`
 - `evaluateComposable(composable, ctx)`
-- `policy(id, evaluate)`
+- `policy(id, evaluate, { executeBinding?: "snapshot" | "live" })` — default `live`; use `snapshot` with shared `resolvedPolicies` at AI SDK execute
+- `gateToolPoliciesAtExecute` — execute-boundary policy gate (used by ai-sdk adapter)
 - `mergeToolPipelineHooks` / `evaluatePolicyWithHooks` — optional telemetry; hooks are **not** hashed
 
 ### Hashing and runtime snapshot

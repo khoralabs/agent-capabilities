@@ -1,11 +1,22 @@
+/**
+ * How a policy is enforced at the host execute boundary (e.g. AI SDK `execute`).
+ * - `snapshot`: reuse {@link PolicyResultMap} / `policyResults` from composable evaluation when present.
+ * - `live`: always re-evaluate at execute (default; backward compatible).
+ */
+export type PolicyExecuteBinding = "snapshot" | "live";
+
 /** Policy nodes are deduped by object identity in a Map (same as Convex sharedPolicy). */
 export type SharedPolicy = {
   readonly id: string;
   readonly evaluate: (env: unknown) => Promise<boolean>;
+  /**
+   * @default `"live"`
+   */
+  readonly executeBinding?: PolicyExecuteBinding;
 };
 
 /** Where policy evaluation ran (for {@link ToolPipelineHooks.onPolicyEvaluated}). */
-export type PolicyEvaluatedPhase = "toolkit" | "tool" | "dynamicToolkit";
+export type PolicyEvaluatedPhase = "toolkit" | "tool" | "dynamicToolkit" | "execute";
 
 export type PolicyEvaluatedPayload = {
   ok: boolean;

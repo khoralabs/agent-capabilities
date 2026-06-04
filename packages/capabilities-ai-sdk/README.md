@@ -6,4 +6,12 @@ Bridges evaluated `@khoralabs/agent-capabilities` tool specs to Vercel AI SDK `t
 import { toolMapToAiTools } from "@khoralabs/agent-capabilities-ai-sdk";
 ```
 
-Policies on each `ToolSpec` are re-evaluated on every AI SDK `execute` call. Prefer tools already gated by composable evaluation, or document env parity with your `ToolkitContext`.
+Policies use per-policy **`executeBinding`** (`snapshot` | `live`, default `live`). Pass the same `resolvedPolicies` map from `evaluateComposable` into `ToolRuntimeContext` so snapshot policies skip re-evaluation on each AI SDK `execute`. Live policies always re-run at execute.
+
+```ts
+const resolved = new Map();
+const { tools } = await evaluateComposable(root, ctx, { resolvedPolicies: resolved });
+const aiTools = toolMapToAiTools(tools, { env: ctx.env, resolvedPolicies: resolved });
+```
+
+See [AI SDK policies](../../docs/ai-sdk-policies.md) for bindings, authoritative replay, and hooks.

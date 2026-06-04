@@ -208,6 +208,9 @@ enum PolicyEvaluatedPhase {
 
     @enumValue("dynamicToolkit")
     DYNAMIC_TOOLKIT
+
+    @enumValue("execute")
+    EXECUTE
 }
 
 structure PolicyEvaluatedPayload {
