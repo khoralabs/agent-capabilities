@@ -57,7 +57,7 @@ const { runtimeHash, toolRefs, evaluatedTools, nameToStaticHash } =
 
 Lower-level pieces: `collectToolStaticHashes(root)` → map of tool name → leaf hash; `evaluateComposable(root, ctx)` → tools; then `computeRuntimeHash(enabledNames, map, tools)` or `resolveRuntimeToolRefs(...)`.
 
-More runnable scripts under `examples/` (see below). `examples/toAiSdk.ts` maps evaluated `ToolSpec` values to Vercel AI SDK `tool()`.
+More runnable scripts under `examples/` (see below). For Vercel AI SDK, use [`@khoralabs/agent-capabilities-ai-sdk`](../capabilities-ai-sdk).
 
 ## Declarative agents and sessions for implementors
 
@@ -169,7 +169,7 @@ bun run example:dynamic
 bun run example:capabilities
 ```
 
-`examples/toAiSdk.ts` — map `ToolSpec` → AI SDK `tool()`.
+`01-static-toolkit.ts` / `02-dynamic-toolkit.ts` — evaluate composables and map tools via `@khoralabs/agent-capabilities-ai-sdk`.
 
 ## Tests
 

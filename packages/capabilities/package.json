@@ -31,6 +31,7 @@
     "example:capabilities": "bun run examples/03-capability-snapshot.ts"
   },
   "devDependencies": {
+    "@khoralabs/agent-capabilities-ai-sdk": "workspace:*",
     "@types/bun": "latest",
     "bun-types": "latest",
     "ai": "^6.0.142",

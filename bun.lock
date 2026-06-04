@@ -5,7 +5,7 @@
     "": {
       "name": "@khoralabs/agent-capabilities",
       "devDependencies": {
-        "@biomejs/biome": "^2.0.0",
+        "@biomejs/biome": "^2.4.0",
         "@types/bun": "latest",
         "bun-types": "latest",
         "husky": "^9.1.7",
@@ -16,6 +16,7 @@
       "name": "@khoralabs/agent-capabilities",
       "version": "0.1.0",
       "devDependencies": {
+        "@khoralabs/agent-capabilities-ai-sdk": "workspace:*",
         "@types/bun": "latest",
         "ai": "^6.0.142",
         "bun-types": "latest",
