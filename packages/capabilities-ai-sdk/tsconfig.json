@@ -1,6 +1,10 @@
 {
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "examples/**/*.ts"],
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@khoralabs/agent-capabilities": ["../capabilities/src/index.ts"]
+    },
     "types": ["bun-types"],
     // Environment setup & latest features
     "lib": ["ESNext"],

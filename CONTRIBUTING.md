@@ -25,11 +25,13 @@ bun run typecheck
 bun run test
 ```
 
-If you changed Smithy models:
+If you changed Smithy models (requires [Smithy CLI](https://smithy.io/2.0/guides/smithy-cli/cli_installation.html)):
 
 ```bash
 cd packages/capabilities-spec && smithy validate model
 ```
+
+CI installs Smithy via `smithy-lang/setup-smithy-cli` (see `.github/workflows/ci.yml`).
 
 If you changed public TypeScript APIs, update `CHANGELOG.md` under **Unreleased** (see existing entries for breaking vs additive changes).
 

@@ -21,6 +21,9 @@ jobs:
       - name: Biome check
         run: bun run format:check
 
+      - name: Build publishable packages
+        run: bun run build
+
       - name: Typecheck
         run: bun run typecheck
 
@@ -29,9 +32,6 @@ jobs:
 
       - name: Test @khoralabs/agent-capabilities-ai-sdk
         run: bun run --filter '@khoralabs/agent-capabilities-ai-sdk' test
-
-      - name: Build publishable packages
-        run: bun run build
 
   smithy:
     runs-on: ubuntu-latest
@@ -44,11 +44,10 @@ jobs:
           java-version: "17"
 
       - name: Install Smithy CLI
-        run: |
-          SMITHY_VERSION=1.49.0
-          curl -fsSL "https://github.com/smithy-lang/smithy/releases/download/${SMITHY_VERSION}/smithy-cli-${SMITHY_VERSION}.zip" -o smithy-cli.zip
-          unzip -q smithy-cli.zip -d "$HOME/smithy-cli"
-          echo "$HOME/smithy-cli/bin" >> "$GITHUB_PATH"
+        uses: smithy-lang/setup-smithy-cli@v1
+        with:
+          version: "1.70.0"
+          config: packages/capabilities-spec/smithy-build.json
 
       - name: Validate Smithy models
         working-directory: packages/capabilities-spec

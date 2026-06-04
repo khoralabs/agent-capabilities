@@ -2,6 +2,11 @@
   "include": ["src/**/*.ts", "examples/**/*.ts"],
   "exclude": ["node_modules"],
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@khoralabs/agent-capabilities": ["./src/index.ts"],
+      "@khoralabs/agent-capabilities-ai-sdk": ["../capabilities-ai-sdk/src/index.ts"]
+    },
     "types": ["bun-types"],
     // Environment setup & latest features
     "lib": ["ESNext"],
