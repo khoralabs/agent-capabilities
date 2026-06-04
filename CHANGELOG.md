@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Per-policy `executeBinding` (`snapshot` | `live`) on `policy()`; `gateToolPoliciesAtExecute` for AI SDK execute boundary.
 - `ToolRuntimeContext.resolvedPolicies`, `policyResults`, `policySnapshotMode` for shared evaluation cache.
 - [AI SDK policies](docs/ai-sdk-policies.md) guide.
+- OSS docs: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, [hashing](docs/hashing.md), [standard-schema](docs/standard-schema.md), [host-helpers](docs/host-helpers.md).
 
 ### Changed
 

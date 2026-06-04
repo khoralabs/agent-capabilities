@@ -10,7 +10,7 @@
 - **Template capabilities (`staticHash` on a registered agent)**: hash of the **root composable** plus **agent-level instruction lines** from `createRegisteredAgent` — the agent *definition* you ship. `staticContext` is **not** part of this hash; keep default merged context out of the template fingerprint.
 - **Capability runtime (`runtimeHash`)**: hash of **enabled tools only**, after policies (sorted by tool name). Differs from the template when policy or environment changes which tools are in play.
 - **Invocation binding (optional `invocationHash` on an `CapabilityLink`)**: a separate SHA-256 over a **host-normalized** plain object (e.g. `subjectId`, `personaSlug`, policy bundle id) via `computeInvocationContextHash` / `createCapabilityLink` — the *run* or *tenant* slice without stuffing those fields into `staticInstructions` just to change hashes. Omit when you do not need binding-level lineage.
-- **Zero runtime dependencies** (`dependencies` is empty). **[Standard Schema](https://standardschema.dev)** `inputSchema`; hashed canonically (e.g. `toJSONSchema()` when present).
+- **Zero runtime dependencies** (`dependencies` is empty). **[Standard Schema](https://standardschema.dev)** `inputSchema`; hashed canonically — see [standard-schema guide](../../docs/standard-schema.md) and [hashing appendix](../../docs/hashing.md).
 
 This is **not** end-user authentication. `agentId` / `name` on `RegisteredAgent` are **your** labels for telemetry or storage.
 
@@ -23,7 +23,7 @@ This is **not** end-user authentication. `agentId` / `name` on `RegisteredAgent`
 
 **When not to:** you only need a single fixed tool list forever and never compare runs—skip this and use your framework’s tools directly.
 
-**Out of scope:** your database adapter, threads, transports. This package defines the **persistence contract** (`AgentCapabilitiesPersistence`, Smithy service) and a `:memory:` reference implementation; you implement the same interface for production storage (Convex, Postgres, etc.).
+**Out of scope:** your database adapter, threads, transports. This package defines the **persistence contract** (`AgentCapabilitiesPersistence`, Smithy service) and a `:memory:` reference implementation; you implement the same interface for your production store (SQL, document DB, object storage metadata, etc.).
 
 ## Quick example
 
@@ -129,9 +129,13 @@ Grouped by role; full exports (including types like `ToolSpec`, `Composable`, `C
   - `session.onStart(...)` / `session.onBeforeContext(...)` / `session.onAfterContext(...)` / `session.onBeforeRun(...)` / `session.onAfterRun(...)` / `session.onError(...)`
   - `session.start(input)` runs with composed hooks and merged context (`session > registry > agent static`), then **`run`**
 
-### Output
+### Optional host / UX helpers
 
-- `withFormattedResults`
+Not required for hashing or persistence — see [host helpers guide](../../docs/host-helpers.md).
+
+- `elapsedMs` — timing from `performance.now()`
+- `createToolRegistry` — in-memory composable catalog (tests/examples)
+- `withFormattedResults` — `{ ok, data? } | { ok: false, error }` wrapper
 
 ### Capture one turn (persistence + same-turn LLM)
 

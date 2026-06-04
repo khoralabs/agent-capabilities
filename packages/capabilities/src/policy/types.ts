@@ -5,7 +5,7 @@
  */
 export type PolicyExecuteBinding = "snapshot" | "live";
 
-/** Policy nodes are deduped by object identity in a Map (same as Convex sharedPolicy). */
+/** Policy nodes are deduped by object identity in a shared Map for one evaluation pass. */
 export type SharedPolicy = {
   readonly id: string;
   readonly evaluate: (env: unknown) => Promise<boolean>;

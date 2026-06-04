@@ -29,7 +29,7 @@ Production: load or build `RegisteredAgent` in application code (factory by `age
 
 ## Production pattern
 
-1. Implement `AgentCapabilitiesPersistence` against your database (Convex, Postgres, etc.).
+1. Implement `AgentCapabilitiesPersistence` against your database or storage layer.
 2. On deploy/admin: `upsertRegisteredAgentSnapshot` with `registeredAgentToRegistrationRow(agent, op)`.
 3. Per message/job: `captureAgentSnapshotEnvelope` (or `createCapabilityLink`), then `recordTurnAttribution(persistence, { op, sessionId, link, envelope })` — often in `onAfterRun`.
 4. Pass `persistence` into `createAgentRegistry({ persistence })` if you want the same registry helper with durable storage for registrations and links.

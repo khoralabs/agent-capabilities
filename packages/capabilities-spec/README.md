@@ -4,7 +4,7 @@ Smithy models for agent capabilities interchange and persistence (`agent.capabil
 
 - **Shapes:** wire types, canonical hash payloads, `CapabilityLink`, diffs, `InvocationContextRecommended`.
 - **Persistence:** `AgentCapabilitiesPersistenceService` (logical operations); TypeScript reference impl in `@khoralabs/agent-capabilities`.
-- **Docs:** [persistence](../../docs/persistence.md), [invocation context](../../docs/invocation-context.md), [envelope schema versions](../../docs/schema-versions.md).
+- **Docs:** [hashing](../../docs/hashing.md), [standard-schema](../../docs/standard-schema.md), [persistence](../../docs/persistence.md), [invocation context](../../docs/invocation-context.md), [envelope schema versions](../../docs/schema-versions.md).
 - **Snapshots:** `AgentSnapshotEnvelope`, `AgentRuntimeSnapshot`, policy closure.
 - **Persistence / public services:** storage and comparison contracts (logical operations; implement in your backend).
 
