@@ -2,6 +2,7 @@ export type {
   AgentRegistry,
   AgentSession,
   AgentSessionHooks,
+  CreateAgentRegistryOptions,
   CreateSessionOptions,
   RegisterAgentOptions,
   RegisteredAgentEntry,
@@ -64,6 +65,23 @@ export {
   hashToolSpecStatic,
   resolveRuntimeToolRefs,
 } from "./hashing/runtime-hashes.js";
+export type {
+  AffordanceSnapshotEnvelopeRow,
+  CapabilitiesOpContext,
+  CapabilityLinkRow,
+  RecordTurnAttributionArgs,
+  RecordTurnAttributionResult,
+  RegisteredAgentRegistrationRow,
+} from "./persistence/index.js";
+export {
+  capabilityLinkToRow,
+  createMemoryAgentCapabilitiesPersistence,
+  defaultOpContext,
+  envelopeToRow,
+  recordTurnAttribution,
+  registeredAgentToRegistrationRow,
+} from "./persistence/index.js";
+export type { AgentCapabilitiesPersistence } from "./persistence/interface.js";
 export {
   evaluatePolicyWithHooks,
   mergeToolPipelineHooks,

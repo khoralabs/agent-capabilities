@@ -79,9 +79,12 @@ describe("createAgentRegistry", () => {
       instructions: ["static line"],
       rootComposable: graph,
     });
-    const { staticHash: got } = reg.register(agent);
+    const { staticHash: got } = await reg.register(agent);
     const entry = reg.get("a1");
     expect(got).toBe(staticHash);
+    const persisted = await reg.persistence.getLatestRegisteredAgentForAgent({ agentId: "a1" });
+    expect(persisted.row?.staticHash).toBe(staticHash);
+    expect(persisted.row?.agentId).toBe("a1");
     expect(entry?.agent.staticHash).toBe(staticHash);
     expect(entry?.agent.agentId).toBe("a1");
     expect(entry?.agent.staticProps.kind).toBe("registered-agent");
@@ -126,7 +129,7 @@ describe("createAgentRegistry", () => {
       rootComposable: graph,
     });
     const seen: string[] = [];
-    reg.register(agent, {
+    await reg.register(agent, {
       hooks: {
         onStart: () => {
           seen.push("registry-start");
@@ -159,7 +162,7 @@ describe("createAgentRegistry", () => {
       context: { shared: "agent", onlyAgent: true },
       rootComposable: graph,
     });
-    reg.register(agent, {
+    await reg.register(agent, {
       ctx: { shared: "registry", onlyRegistry: true },
       run: async ({ context }) => context,
     });
@@ -183,7 +186,7 @@ describe("createAgentRegistry", () => {
       instructions: [],
       rootComposable: graph,
     });
-    reg.register(agent, {
+    await reg.register(agent, {
       ctx: ({ input }) => ({ fromRegistryResolver: Number(input) + 1 }),
       run: async ({ context }) => context,
     });

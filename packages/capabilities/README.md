@@ -23,7 +23,7 @@ This is **not** end-user authentication. `agentId` / `name` on `RegisteredAgent`
 
 **When not to:** you only need a single fixed tool list forever and never compare runs—skip this and use your framework’s tools directly.
 
-**Out of scope:** persistence, threads, transports. You supply correlation ids (message id, job id, etc.). Optional: store hashes in **Convex** or any DB per message/job; this package does not require Convex.
+**Out of scope:** your database adapter, threads, transports. This package defines the **persistence contract** (`AgentCapabilitiesPersistence`, Smithy service) and a `:memory:` reference implementation; you implement the same interface for production storage (Convex, Postgres, etc.).
 
 ## Quick example
 
@@ -110,11 +110,19 @@ Grouped by role; full exports (including types like `ToolSpec`, `Composable`, `C
 
 - `formatHashShort` / `diffToolRefs` / `diffCapabilityLinks` / `explainCapabilityLinkRelationship`
 
-### Registries (in-memory; tests / examples)
+### Persistence (Smithy contract + `:memory:`)
 
-- `createToolRegistry` / `createAgentRegistry` / `hashToolComposableStatic`
-- `createAgentRegistry().register(agent, { hooks, ctx, run })` — see [Declarative agents and sessions for implementors](#declarative-agents-and-sessions-for-implementors)
-- `createAgentRegistry().createSession(agentId, { hooks, ctx, run })` — `agentId` matches `RegisteredAgent.agentId`
+- `AgentCapabilitiesPersistence` — implement for your DB; see [persistence guide](../../docs/persistence.md)
+- `createMemoryAgentCapabilitiesPersistence()` — `:memory:` backend (like SQLite `:memory:`)
+- `recordTurnAttribution(persistence, { op, sessionId, link, envelope? })` — write link + optional envelope after capture
+- `registeredAgentToRegistrationRow` / `capabilityLinkToRow` / `envelopeToRow` / `defaultOpContext`
+
+### Session host (`createAgentRegistry`)
+
+- `createAgentRegistry({ persistence? })` — defaults to `:memory:` persistence; session host + orchestration overlay
+- `createToolRegistry` / `hashToolComposableStatic`
+- `await createAgentRegistry().register(agent, { hooks, ctx, run })` — see [Declarative agents and sessions for implementors](#declarative-agents-and-sessions-for-implementors)
+- `createAgentRegistry().createSession(agentId, { hooks, ctx, run, sessionId? })` — `agentId` matches `RegisteredAgent.agentId`
   - `session.onStart(...)` / `session.onAfterAgent(...)` / `session.onAfterContext(...)` / `session.onBeforeRun(...)` / `session.onAfterRun(...)` / `session.onError(...)`
   - `session.start(input)` runs with composed hooks and merged context (`session > registry > agent static`), then **`run`**
 
@@ -157,9 +165,9 @@ Use **`captureAgentRuntimeSnapshot`** when the static template is unchanged and 
 
 ## Mapping to persistence
 
-This package only computes hashes and payloads. A database may add its own ids (`registrationId`, `toolVersionId`, etc.). Host backends may define their own persistence schemas; those ids are **not** emitted here.
+Hashes and wire payloads are computed in-process; durable storage uses [`AgentCapabilitiesPersistence`](../../docs/persistence.md) (Smithy `AgentCapabilitiesPersistenceService`). Host backends assign opaque ids (`registrationId`, `linkId`, etc.); row builders accept optional ids.
 
-**What to store:** prefer a full **`AgentSnapshotEnvelope`** from `captureAgentSnapshotEnvelope`, or a **`CapabilityLink`** (includes `toolRefs`) plus wire affordances. `AgentRuntimeSnapshot` still exposes top-level `toolRefs` for envelope v1; they should match `link.toolRefs`. If you need forensics, persist the **same** `invocationContext` object you passed to capture (or store it in host `metadata`). Smithy `CapabilityLinkRow` may optionally denormalize `toolRefs` on the link row.
+**What to store:** prefer `recordTurnAttribution` or a full **`AgentSnapshotEnvelope`** from `captureAgentSnapshotEnvelope`, or a **`CapabilityLink`** (includes `toolRefs`) plus wire affordances. `AgentRuntimeSnapshot` still exposes top-level `toolRefs` for envelope v1; they should match `link.toolRefs`. If you need forensics, persist the **same** `invocationContext` object you passed to capture (or store it in host `metadata`).
 
 ## Invocation context
 

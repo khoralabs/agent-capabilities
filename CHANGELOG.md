@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CapabilityLink.toolRefs` populated by `createCapabilityLink` for single-row persistence.
 - `InvocationContextRecommended` type (TS + Smithy) and [invocation context conventions](docs/invocation-context.md).
 - [Envelope schema versioning policy](docs/schema-versions.md) and `AGENT_SNAPSHOT_ENVELOPE_VERSION` (`"1"`).
+- `AgentCapabilitiesPersistence` interface, `createMemoryAgentCapabilitiesPersistence` (`:memory:`), `recordTurnAttribution`, and Smithy `GetLatestRegisteredAgentForAgent`.
+- `createAgentRegistry({ persistence })` composes session host with default in-memory persistence; `register` is async and upserts registration rows.
 
 ### Schema versioning
 

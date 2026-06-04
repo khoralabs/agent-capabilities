@@ -1,3 +1,7 @@
+import type { AgentCapabilitiesPersistence } from "../persistence/interface.js";
+import { createMemoryAgentCapabilitiesPersistence } from "../persistence/memory.js";
+import { defaultOpContext, registeredAgentToRegistrationRow } from "../persistence/row-builders.js";
+import type { CapabilitiesOpContext } from "../persistence/types.js";
 import type { RegisteredAgent } from "./types.js";
 
 type MaybePromise<T> = T | Promise<T>;
@@ -82,6 +86,15 @@ export type CreateSessionOptions<
   hooks?: AgentSessionHooks<Input, Output, Context>;
   ctx?: SessionContextInput<Input> | SessionContextInput<Input>[];
   run?: RegisteredSessionRunner;
+  /** Host session id for attribution persistence (e.g. with {@link recordTurnAttribution}). */
+  sessionId?: string;
+};
+
+export type CreateAgentRegistryOptions = {
+  /** Default: in-memory persistence (`:memory:`). */
+  persistence?: AgentCapabilitiesPersistence;
+  /** Op context for persistence writes on {@link AgentRegistry.register}. */
+  opContext?: () => CapabilitiesOpContext;
 };
 
 /** Hooks are widened for heterogeneous storage; invocation stays `unknown` at runtime (see `runStage`). */
@@ -94,6 +107,7 @@ export type RegisteredAgentEntry = {
 
 export type AgentSession = {
   readonly agentId: string;
+  readonly sessionId?: string;
   onStart: (hook: NonNullable<AgentSessionHooks["onStart"]>) => AgentSession;
   onAfterAgent: (hook: NonNullable<AgentSessionHooks["onAfterAgent"]>) => AgentSession;
   onAfterContext: (hook: NonNullable<AgentSessionHooks["onAfterContext"]>) => AgentSession;
@@ -104,10 +118,12 @@ export type AgentSession = {
 };
 
 export type AgentRegistry = {
+  /** Smithy-aligned storage backend (default `:memory:`). */
+  readonly persistence: AgentCapabilitiesPersistence;
   register: <Input = unknown, Output = unknown, Context extends SessionContext = SessionContext>(
     agent: RegisteredAgent,
     options?: RegisterAgentOptions<Input, Output, Context>,
-  ) => { staticHash: string };
+  ) => Promise<{ staticHash: string }>;
   createSession: <
     Input = unknown,
     Output = unknown,
@@ -132,24 +148,33 @@ function mergeContext(base: SessionContext, extra?: SessionContext): SessionCont
 }
 
 /**
- * In-memory agent registration map keyed by `agentId`.
+ * Session host with default `:memory:` {@link AgentCapabilitiesPersistence}.
+ * Orchestration (hooks, `run`, live composable) lives in a process-local overlay; persistence
+ * stores registration rows and attribution. Production: pass your DB-backed persistence implementation.
  */
-export function createAgentRegistry(): AgentRegistry {
-  const byId = new Map<string, RegisteredAgentEntry>();
+export function createAgentRegistry(options?: CreateAgentRegistryOptions): AgentRegistry {
+  const persistence = options?.persistence ?? createMemoryAgentCapabilitiesPersistence();
+  const opContext = options?.opContext ?? defaultOpContext;
+  const overlay = new Map<string, RegisteredAgentEntry>();
 
-  function register<
+  async function register<
     Input = unknown,
     Output = unknown,
     Context extends SessionContext = SessionContext,
   >(
     agent: RegisteredAgent,
-    options: RegisterAgentOptions<Input, Output, Context> = {},
-  ): { staticHash: string } {
-    byId.set(agent.agentId, {
+    registerOptions: RegisterAgentOptions<Input, Output, Context> = {},
+  ): Promise<{ staticHash: string }> {
+    const op = opContext();
+    await persistence.upsertRegisteredAgentSnapshot({
+      op,
+      row: registeredAgentToRegistrationRow(agent, op),
+    });
+    overlay.set(agent.agentId, {
       agent,
-      hooks: options.hooks as RegisteredAgentEntry["hooks"],
-      ctx: toArray(options.ctx) as RegisteredAgentEntry["ctx"],
-      run: options.run,
+      hooks: registerOptions.hooks as RegisteredAgentEntry["hooks"],
+      ctx: toArray(registerOptions.ctx) as RegisteredAgentEntry["ctx"],
+      run: registerOptions.run,
     });
     return { staticHash: agent.staticHash };
   }
@@ -158,15 +183,19 @@ export function createAgentRegistry(): AgentRegistry {
     Input = unknown,
     Output = unknown,
     Context extends SessionContext = SessionContext,
-  >(agentId: string, options: CreateSessionOptions<Input, Output, Context> = {}): AgentSession {
-    const entry = byId.get(agentId);
+  >(
+    agentId: string,
+    sessionOptions: CreateSessionOptions<Input, Output, Context> = {},
+  ): AgentSession {
+    const entry = overlay.get(agentId);
     if (!entry) {
       throw new Error(`agent not registered: ${agentId}`);
     }
     const registered = entry;
     const sessionHooks: AgentSessionHooks = {};
-    const sessionCtx = toArray(options.ctx);
-    const sessionRun = options.run;
+    const sessionCtx = toArray(sessionOptions.ctx);
+    const sessionRun = sessionOptions.run;
+    const sessionId = sessionOptions.sessionId;
 
     async function runStage(
       stage: keyof AgentSessionHooks,
@@ -186,9 +215,11 @@ export function createAgentRegistry(): AgentRegistry {
             error: unknown;
           },
     ): Promise<void> {
-      const hooks = [registered.hooks?.[stage], options.hooks?.[stage], sessionHooks[stage]].filter(
-        Boolean,
-      ) as Array<(a: unknown) => MaybePromise<void>>;
+      const hooks = [
+        registered.hooks?.[stage],
+        sessionOptions.hooks?.[stage],
+        sessionHooks[stage],
+      ].filter(Boolean) as Array<(a: unknown) => MaybePromise<void>>;
       for (const hook of hooks) {
         await hook(args);
       }
@@ -218,6 +249,7 @@ export function createAgentRegistry(): AgentRegistry {
 
     const session: AgentSession = {
       agentId,
+      sessionId,
       onStart(hook) {
         sessionHooks.onStart = hook;
         return session;
@@ -267,22 +299,23 @@ export function createAgentRegistry(): AgentRegistry {
   }
 
   function get(agentId: string): RegisteredAgentEntry | undefined {
-    return byId.get(agentId);
+    return overlay.get(agentId);
   }
 
   function has(agentId: string): boolean {
-    return byId.has(agentId);
+    return overlay.has(agentId);
   }
 
   function listKeys(): string[] {
-    return [...byId.keys()];
+    return [...overlay.keys()];
   }
 
   function entries(): IterableIterator<[string, RegisteredAgentEntry]> {
-    return byId.entries();
+    return overlay.entries();
   }
 
   return {
+    persistence,
     register,
     createSession,
     get,

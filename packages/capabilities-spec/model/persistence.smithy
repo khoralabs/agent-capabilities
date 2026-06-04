@@ -26,11 +26,16 @@ runtime hashes; hosts may instead store refs only on {@link RuntimeSnapshotRow}.
 
 **Transitions:** `RecordCapabilityTransition` links two {@link CapabilityLinkRow} ids for
 replay and audit graphs.
+
+**Orchestration:** Session hooks, `run` handlers, and live composable graphs are host-local;
+this service stores templates and attribution rows only. Reference TS pairs an in-memory
+backend (`:memory:`) with a session host via {@link createAgentRegistry}.
 """)
 service AgentCapabilitiesPersistenceService {
     version: "2026-04-12"
     operations: [
         UpsertRegisteredAgentSnapshot
+        GetLatestRegisteredAgentForAgent
         RecordSessionCapabilityLink
         GetLatestCapabilityLinkForSession
         ListCapabilityLinksForAgent
@@ -53,6 +58,20 @@ structure UpsertRegisteredAgentSnapshotInput {
 
 structure UpsertRegisteredAgentSnapshotOutput {
     registrationId: String
+}
+
+operation GetLatestRegisteredAgentForAgent {
+    input: GetLatestRegisteredAgentForAgentInput
+    output: GetLatestRegisteredAgentForAgentOutput
+}
+
+structure GetLatestRegisteredAgentForAgentInput {
+    agentId: String
+}
+
+structure GetLatestRegisteredAgentForAgentOutput {
+    /// Present when a registration exists for the agent; omitted when none.
+    row: RegisteredAgentRegistrationRow
 }
 
 operation RecordSessionCapabilityLink {
