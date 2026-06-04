@@ -1,0 +1,28 @@
+{
+  "name": "@khoralabs/agent-capabilities-ai-sdk",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@khoralabs/agent-capabilities": "workspace:*",
+    "ai": "^6"
+  },
+  "scripts": {
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "bun-types": "latest",
+    "zod": "^4"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
