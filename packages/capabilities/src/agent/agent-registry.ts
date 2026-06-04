@@ -24,7 +24,7 @@ export type AgentSessionHooks<
   Context extends SessionContext = SessionContext,
 > = {
   onStart?: (args: { agent: RegisteredAgent; input: Input }) => MaybePromise<void>;
-  onAfterAgent?: (args: { agent: RegisteredAgent; input: Input }) => MaybePromise<void>;
+  onBeforeContext?: (args: { agent: RegisteredAgent; input: Input }) => MaybePromise<void>;
   onAfterContext?: (args: {
     agent: RegisteredAgent;
     input: Input;
@@ -109,7 +109,7 @@ export type AgentSession = {
   readonly agentId: string;
   readonly sessionId?: string;
   onStart: (hook: NonNullable<AgentSessionHooks["onStart"]>) => AgentSession;
-  onAfterAgent: (hook: NonNullable<AgentSessionHooks["onAfterAgent"]>) => AgentSession;
+  onBeforeContext: (hook: NonNullable<AgentSessionHooks["onBeforeContext"]>) => AgentSession;
   onAfterContext: (hook: NonNullable<AgentSessionHooks["onAfterContext"]>) => AgentSession;
   onBeforeRun: (hook: NonNullable<AgentSessionHooks["onBeforeRun"]>) => AgentSession;
   onAfterRun: (hook: NonNullable<AgentSessionHooks["onAfterRun"]>) => AgentSession;
@@ -254,8 +254,8 @@ export function createAgentRegistry(options?: CreateAgentRegistryOptions): Agent
         sessionHooks.onStart = hook;
         return session;
       },
-      onAfterAgent(hook) {
-        sessionHooks.onAfterAgent = hook;
+      onBeforeContext(hook) {
+        sessionHooks.onBeforeContext = hook;
         return session;
       },
       onAfterContext(hook) {
@@ -277,7 +277,7 @@ export function createAgentRegistry(options?: CreateAgentRegistryOptions): Agent
       async start<Input = unknown, Output = unknown>(input: Input): Promise<Output> {
         const agent = registered.agent;
         await runStage("onStart", { agent, input });
-        await runStage("onAfterAgent", { agent, input });
+        await runStage("onBeforeContext", { agent, input });
         const context = await resolveContext(input);
         await runStage("onAfterContext", { agent, input, context });
         await runStage("onBeforeRun", { agent, input, context });

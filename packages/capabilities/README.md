@@ -69,9 +69,11 @@ More runnable scripts under `examples/` (see below). For Vercel AI SDK, use [`@k
 
 1. **Toolkit pipeline hooks** — `onPolicyEvaluated` / `onToolExecuted`, merged via `mergeToolPipelineHooks`, on **`toolkit` / `tool`** definitions and optionally **`ToolkitContext.pipelineHooks`**. These run **inside** composable evaluation while policies and tools execute. Use for telemetry or side effects around policy/tool execution, not for substituting your own evaluation loop.
 
-2. **Session hooks** — `onStart`, `onAfterAgent`, `onAfterContext`, `onBeforeRun`, `onAfterRun`, `onError` on **`register`** / **`createSession`**, or chained on the returned **`AgentSession`**. These run **around** building `SessionContext` and calling **`run`**. Use for session lifecycle, logging, or injecting fields before your runner evaluates affordances (e.g. building a `ToolkitContext` inside `run` or `onBeforeRun`).
+2. **Session hooks** — `onStart`, `onBeforeContext`, `onAfterContext`, `onBeforeRun`, `onAfterRun`, `onError` on **`register`** / **`createSession`**, or chained on the returned **`AgentSession`**. These run **around** building `SessionContext` and calling **`run`**. Use for session lifecycle, logging, or injecting fields before your runner evaluates affordances (e.g. building a `ToolkitContext` inside `run` or `onBeforeRun`).
 
 **Session API.** Call **`createSession(agentId)`** with the same string **`agentId`** you used at register time, then **`start(input)`**. Optional per-session overrides use the same `{ hooks, ctx, run }` shape.
+
+**Session lifecycle (`start` order):** `onStart` → `onBeforeContext` (agent + input only) → merge `ctx` into `context` → `onAfterContext` → `onBeforeRun` → `run` → `onAfterRun` or `onError`. Use `onBeforeContext` for early setup; use `onAfterRun` for attribution (`recordTurnAttribution`) after capture inside `run`.
 
 **Optional “one declarative blob” later.** A small factory or type that bundles **`RegisteredAgent`** with default **`RegisterAgentOptions`** is only sugar on top of **`register`**; it does not change semantics.
 
@@ -123,7 +125,7 @@ Grouped by role; full exports (including types like `ToolSpec`, `Composable`, `C
 - `createToolRegistry` / `hashToolComposableStatic`
 - `await createAgentRegistry().register(agent, { hooks, ctx, run })` — see [Declarative agents and sessions for implementors](#declarative-agents-and-sessions-for-implementors)
 - `createAgentRegistry().createSession(agentId, { hooks, ctx, run, sessionId? })` — `agentId` matches `RegisteredAgent.agentId`
-  - `session.onStart(...)` / `session.onAfterAgent(...)` / `session.onAfterContext(...)` / `session.onBeforeRun(...)` / `session.onAfterRun(...)` / `session.onError(...)`
+  - `session.onStart(...)` / `session.onBeforeContext(...)` / `session.onAfterContext(...)` / `session.onBeforeRun(...)` / `session.onAfterRun(...)` / `session.onError(...)`
   - `session.start(input)` runs with composed hooks and merged context (`session > registry > agent static`), then **`run`**
 
 ### Output

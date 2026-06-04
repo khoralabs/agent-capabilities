@@ -41,8 +41,8 @@ sequenceDiagram
   participant Session
   participant Overlay
   participant Persistence
-  Session->>Overlay: onStart / onAfterAgent
-  Note over Session: onAfterAgent runs before context merge
+  Session->>Overlay: onStart / onBeforeContext
+  Note over Session: onBeforeContext runs before context merge
   Session->>Overlay: resolveContext
   Session->>Overlay: onAfterContext / onBeforeRun
   Session->>Overlay: run
@@ -50,7 +50,7 @@ sequenceDiagram
   Session->>Persistence: optional recordTurnAttribution
 ```
 
-`onAfterAgent` runs **before** merged session context is built; see checklist note on naming (`onAfterAgent` vs future rename).
+`onBeforeContext` runs **before** merged session context is built (after `onStart`, before `resolveContext`).
 
 ## API entry points
 
