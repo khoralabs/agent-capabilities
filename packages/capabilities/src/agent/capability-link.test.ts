@@ -49,6 +49,9 @@ describe("createCapabilityLink", () => {
     expect(link.runtimeHash).toMatch(/^[a-f0-9]{64}$/);
     expect(link.runtimeHash).toBe(runtimeHash);
     expect(link.invocationHash).toBeUndefined();
+    expect(link.toolRefs).toEqual([
+      { toolKey: "t", toolHash: expect.stringMatching(/^[a-f0-9]{64}$/) },
+    ]);
   });
 
   test("sets invocationHash when invocationContext is non-empty", async () => {
@@ -103,6 +106,8 @@ describe("createCapabilityLink", () => {
     expect(link.runtimeHash).toBe(expected);
     expect(link.runtimeHash).toBe(runtimeHash);
     expect(link.invocationHash).toBeDefined();
+    expect(link.toolRefs.length).toBe(1);
+    expect(link.toolRefs[0]?.toolKey).toBe("t");
   });
 
   test("runtimeToolAugments changes runtime hash for bound tool", async () => {
@@ -131,6 +136,7 @@ describe("createCapabilityLink", () => {
     });
     expect(first.runtimeHash).not.toBe(second.runtimeHash);
     expect(first.link.runtimeHash).toBe(first.runtimeHash);
+    expect(first.link.toolRefs).toEqual(first.toolRefs);
     const refA = first.toolRefs.find((r) => r.toolKey === "memory_search")?.toolHash;
     const refB = second.toolRefs.find((r) => r.toolKey === "memory_search")?.toolHash;
     expect(refA).toBeDefined();

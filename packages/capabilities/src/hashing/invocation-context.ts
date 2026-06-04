@@ -4,6 +4,21 @@ import { hashPlainObject } from "./hash.js";
  * Pre-hash tree for a host-supplied per-invocation slice (user, subject, policy bundle, etc.).
  * Paired with {@link computeInvocationContextHash}; not included in `staticHash` or `runtimeHash`.
  */
+/**
+ * Recommended optional keys for host `invocationContext` (conventions only; not enforced at runtime).
+ * Hosts may add arbitrary plain keys. See `docs/invocation-context.md` for invocation vs session context.
+ */
+export type InvocationContextRecommended = {
+  traceId?: string;
+  sessionId?: string;
+  messageId?: string;
+  tenantId?: string;
+  actorId?: string;
+  subjectId?: string;
+  personaSlug?: string;
+  policyBundleId?: string;
+};
+
 export type InvocationContextCanonicalPayload = {
   kind: "invocation";
   /**

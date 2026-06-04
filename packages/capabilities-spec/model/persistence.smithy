@@ -18,7 +18,8 @@ depends on the storage backend.
 
 **Capability lineage:** {@link CapabilityLink} and {@link CapabilityLinkRow} include
 optional `invocationHash` — a third fingerprint for per-invocation binding separate from
-`staticHash` and `runtimeHash`.
+`staticHash` and `runtimeHash`. Optional `toolRefs` on the link row denormalize per-tool
+runtime hashes; hosts may instead store refs only on {@link RuntimeSnapshotRow}.
 
 **Snapshots:** `RecordAffordanceSnapshotEnvelope` persists a versioned
 {@link AgentSnapshotEnvelope} (`envelope` as `Document`).

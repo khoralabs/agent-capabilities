@@ -48,6 +48,7 @@ export {
 export { hashPlainObject, schemaToHashInput } from "./hashing/hash.js";
 export type {
   InvocationContextCanonicalPayload,
+  InvocationContextRecommended,
   NormalizeInvocationContextForHashOptions,
 } from "./hashing/invocation-context.js";
 export {

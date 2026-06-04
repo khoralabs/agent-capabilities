@@ -1,7 +1,7 @@
 import type { CapabilityLink } from "../agent/capability-link.js";
 import { createCapabilityLink } from "../agent/capability-link.js";
 import type { RegisteredAgent } from "../agent/types.js";
-import { collectToolStaticHashes, resolveRuntimeToolRefs } from "../hashing/runtime-hashes.js";
+import { collectToolStaticHashes } from "../hashing/runtime-hashes.js";
 import type { PolicyResultMap } from "../policy/types.js";
 import type { ToolSpec } from "../tool/types.js";
 import { assembleToolkitAgentInstructions } from "../toolkit/assemble-toolkit-instructions.js";
@@ -103,12 +103,7 @@ async function evaluateAndCaptureTurn<Env>(
     invocationContext: args.invocationContext,
     invocationContextAllowlist: args.invocationContextAllowlist,
   });
-  const toolRefs = await resolveRuntimeToolRefs(
-    enabledToolNames,
-    nameToStaticHash,
-    evaluatedTools,
-    aug,
-  );
+  const toolRefs = link.toolRefs;
 
   const policy = capturePolicyResults(resolved, args.policyMode ?? "hint", args.policyAudit);
 

@@ -36,7 +36,8 @@ export function diffToolRefs(first: ToolRefRow[], second: ToolRefRow[]): ToolRef
   return { onlyInFirst, onlyInSecond, hashChanged };
 }
 
-export type CapabilityLinkField = keyof CapabilityLink;
+/** Fields compared by {@link diffCapabilityLinks} (excludes `toolRefs`; use {@link diffToolRefs}). */
+export type CapabilityLinkField = Exclude<keyof CapabilityLink, "toolRefs">;
 
 export type CapabilityLinkFieldChange = {
   field: CapabilityLinkField;

@@ -91,6 +91,19 @@ structure InvocationContextCanonicalPayload {
     context: Document
 }
 
+/// Recommended optional keys for host `invocationContext` maps (conventions only; not validated).
+/// See repository `docs/invocation-context.md`. Hosts may add arbitrary plain keys.
+structure InvocationContextRecommended {
+    traceId: String
+    sessionId: String
+    messageId: String
+    tenantId: String
+    actorId: String
+    subjectId: String
+    personaSlug: String
+    policyBundleId: String
+}
+
 // --- Capability link & diffs ---
 
 /// Attribution record: template fingerprint, effective runtime tools, optional per-invocation binding.
@@ -101,6 +114,8 @@ structure CapabilityLink {
     runtimeHash: String
     @documentation("Optional. Per-run binding fingerprint; omit when not computed. Not part of staticHash.")
     invocationHash: String
+    @documentation("Per-tool runtime refs for this link (derivable from runtimeHash; included for single-row persistence).")
+    toolRefs: ToolRefRowList
 }
 
 structure ToolRefRow {
@@ -231,6 +246,8 @@ structure CapabilityLinkRow {
     staticHash: String
     runtimeHash: String
     invocationHash: String
+    @documentation("Optional denormalized tool refs; may also live on RuntimeSnapshotRow.")
+    toolRefs: ToolRefRowList
     /// Host metadata (e.g. raw invocation context, source, indices). Not hashed in CapabilityLink.
     metadata: Document
 }

@@ -49,6 +49,8 @@ describe("captureAgentSnapshotEnvelope", () => {
     if (!runtime) throw new Error("expected envelope.runtime");
     expect(runtime.link).toEqual(link);
     expect(link.runtimeHash).toBe(runtime.link.runtimeHash);
+    expect(link.toolRefs).toEqual(toolRefs);
+    expect(link.toolRefs).toEqual(runtime.toolRefs);
     expect(toolRefs).toEqual(runtime.toolRefs);
     expect(Object.keys(envelope.runtime?.affordances.tools ?? {})).toEqual(["echo"]);
     expect(evaluatedTools.echo).toBeDefined();

@@ -26,3 +26,5 @@ bun run build
 **Git hooks (Husky):** `pre-commit` runs `format:check`; `pre-push` runs `format:check`, `typecheck`, and `test`. Install the [Biome VS Code extension](.vscode/extensions.json) for format-on-save.
 
 Publishable packages emit `dist/` via `tsc` (Node 18+). See [`packages/capabilities/README.md`](packages/capabilities/README.md) for API docs.
+
+**Docs:** [invocation context](docs/invocation-context.md), [envelope schema versions](docs/schema-versions.md).

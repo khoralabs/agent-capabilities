@@ -45,6 +45,7 @@ describe("diffCapabilityLinks", () => {
       agentName: "A",
       staticHash: "s",
       runtimeHash: "r",
+      toolRefs: [],
     };
     const d = diffCapabilityLinks(x, { ...x });
     expect(d.changed).toEqual([]);
@@ -64,6 +65,7 @@ describe("diffCapabilityLinks", () => {
       agentName: "A",
       staticHash: "s1",
       runtimeHash: "r1",
+      toolRefs: [],
     };
     const b: CapabilityLink = { ...a, runtimeHash: "r2" };
     const d = diffCapabilityLinks(a, b);
@@ -78,6 +80,7 @@ describe("explainCapabilityLinkRelationship", () => {
     agentName: "A",
     staticHash: "s",
     runtimeHash: "r",
+    toolRefs: [],
   });
 
   test("same", () => {

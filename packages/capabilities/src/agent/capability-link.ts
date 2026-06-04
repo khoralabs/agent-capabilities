@@ -2,6 +2,7 @@ import { computeInvocationContextHash } from "../hashing/invocation-context.js";
 import {
   computeRuntimeCapabilitiesFromEvaluation,
   computeRuntimeHash,
+  resolveRuntimeToolRefs,
 } from "../hashing/runtime-hashes.js";
 import type { ToolSpec } from "../tool/types.js";
 import type { Composable, ToolkitContext } from "../toolkit/types.js";
@@ -18,6 +19,11 @@ export type CapabilityLink = {
   runtimeHash: string;
   /** When set, hashes host-supplied invocation context; omitted when not provided or empty. */
   invocationHash?: string;
+  /**
+   * Per-tool runtime refs for this link (derivable from `runtimeHash`; included for single-row persistence).
+   * Always set by {@link createCapabilityLink}.
+   */
+  toolRefs: Array<{ toolKey: string; toolHash: string }>;
 };
 
 export type CreateCapabilityLinkArgs = {
@@ -40,6 +46,11 @@ export type CreateCapabilityLinkArgs = {
   invocationContext?: unknown;
   /** If set, only these top-level keys of `invocationContext` are hashed. */
   invocationContextAllowlist?: string[];
+  /**
+   * Precomputed tool refs (e.g. from {@link computeRuntimeCapabilitiesFromEvaluation}).
+   * When omitted, refs are resolved from enabled tools and hashes.
+   */
+  toolRefs?: Array<{ toolKey: string; toolHash: string }>;
 };
 
 export async function createCapabilityLink(
@@ -54,11 +65,20 @@ export async function createCapabilityLink(
   const invocationHash = await computeInvocationContextHash(args.invocationContext, {
     allowlist: args.invocationContextAllowlist,
   });
+  const toolRefs =
+    args.toolRefs ??
+    (await resolveRuntimeToolRefs(
+      args.enabledToolNames,
+      args.nameToStaticHash,
+      args.tools,
+      args.runtimeToolAugments,
+    ));
   const out: CapabilityLink = {
     agentId: args.agent.agentId,
     agentName: args.agent.name,
     staticHash: args.agent.staticHash,
     runtimeHash,
+    toolRefs,
   };
   if (invocationHash !== undefined) {
     out.invocationHash = invocationHash;
@@ -102,6 +122,7 @@ export async function computeFullCapabilityLink<Env = unknown>(args: {
     runtimeToolAugments: aug,
     invocationContext: args.invocationContext,
     invocationContextAllowlist: args.invocationContextAllowlist,
+    toolRefs,
   });
-  return { link, runtimeHash, toolRefs, nameToStaticHash, evaluatedTools };
+  return { link, runtimeHash, toolRefs: link.toolRefs, nameToStaticHash, evaluatedTools };
 }

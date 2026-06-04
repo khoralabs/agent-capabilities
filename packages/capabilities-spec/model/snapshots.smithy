@@ -40,6 +40,7 @@ structure RegisteredAgentAffordancesWire {
 }
 
 /// Runtime slice: capability link, tool refs, affordances, policy closure, and toolkit context.
+/// When `link.toolRefs` is set, `toolRefs` on this structure should match (envelope v1 keeps both).
 structure AgentRuntimeSnapshot {
     link: CapabilityLink
     toolRefs: ToolRefRowList
