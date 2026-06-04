@@ -24,8 +24,11 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
-      - name: Test
-        run: bun run test
+      - name: Test @khoralabs/agent-capabilities
+        run: bun run --filter '@khoralabs/agent-capabilities' test
+
+      - name: Test @khoralabs/agent-capabilities-ai-sdk
+        run: bun run --filter '@khoralabs/agent-capabilities-ai-sdk' test
 
       - name: Build publishable packages
         run: bun run build

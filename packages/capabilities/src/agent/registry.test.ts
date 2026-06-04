@@ -177,6 +177,53 @@ describe("createAgentRegistry", () => {
     });
   });
 
+  test("onError runs on runner failure and onAfterRun does not", async () => {
+    const reg = createAgentRegistry();
+    const graph = tool({ name: "n", inputSchema: schema, handler: async () => 0 });
+    const { agent } = await createRegisteredAgent({
+      agentId: "err",
+      name: "Err",
+      instructions: [],
+      rootComposable: graph,
+    });
+    const seen: string[] = [];
+    await reg.register(agent, {
+      hooks: {
+        onStart: () => {
+          seen.push("onStart");
+        },
+        onBeforeContext: () => {
+          seen.push("onBeforeContext");
+        },
+        onAfterContext: () => {
+          seen.push("onAfterContext");
+        },
+        onBeforeRun: () => {
+          seen.push("onBeforeRun");
+        },
+        onAfterRun: () => {
+          seen.push("onAfterRun");
+        },
+        onError: () => {
+          seen.push("onError");
+        },
+      },
+      run: async () => {
+        throw new Error("runner failed");
+      },
+    });
+    const session = reg.createSession("err");
+    await expect(session.start(undefined)).rejects.toThrow("runner failed");
+    expect(seen).toEqual([
+      "onStart",
+      "onBeforeContext",
+      "onAfterContext",
+      "onBeforeRun",
+      "onError",
+    ]);
+    expect(seen).not.toContain("onAfterRun");
+  });
+
   test("context resolver runs at start with merged input", async () => {
     const reg = createAgentRegistry();
     const graph = tool({ name: "n", inputSchema: schema, handler: async () => 0 });
