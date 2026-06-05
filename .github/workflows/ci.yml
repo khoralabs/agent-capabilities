@@ -41,14 +41,16 @@ jobs:
       - name: Install Smithy CLI
         run: |
           SMITHY_VERSION=1.70.0
+          SMITHY_BIN="$HOME/smithy-cli/smithy-cli-linux-x86_64/bin"
           curl -fsSL \
             "https://github.com/smithy-lang/smithy/releases/download/${SMITHY_VERSION}/smithy-cli-linux-x86_64.zip" \
             -o /tmp/smithy-cli.zip
           mkdir -p "$HOME/smithy-cli"
           unzip -qo /tmp/smithy-cli.zip -d "$HOME/smithy-cli"
-          echo "$HOME/smithy-cli/smithy-cli-linux-x86_64/bin" >> "$GITHUB_PATH"
-          smithy --version
+          echo "$SMITHY_BIN" >> "$GITHUB_PATH"
+          echo "SMITHY_BIN=$SMITHY_BIN" >> "$GITHUB_ENV"
+          "$SMITHY_BIN/smithy" --version
 
       - name: Validate Smithy models
         working-directory: packages/capabilities-spec
-        run: smithy validate model
+        run: $SMITHY_BIN/smithy validate model
