@@ -30,3 +30,15 @@ Publishable packages emit `dist/` via `tsc` (Node 18+). See [`packages/capabilit
 **Docs:** [attribution and telemetry](docs/attribution-telemetry.md), [hashing](docs/hashing.md), [Standard Schema](docs/standard-schema.md), [persistence](docs/persistence.md), [host helpers](docs/host-helpers.md), [capability diff CLI](docs/capability-diff-cli.md), [AI SDK policies](docs/ai-sdk-policies.md), [invocation context](docs/invocation-context.md), [envelope schema versions](docs/schema-versions.md).
 
 **Community:** [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## Publishing
+
+Each package has a manual **release** workflow. Set **version**, run with **dry run** first, then publish for real. Releases stage under `release/<name>/` outside workspaces; the **verify npm publish access** step dry-runs before the real publish.
+
+| Workflow | Package | Default npm tag |
+|----------|---------|-----------------|
+| `release @khoralabs/agent-capabilities` | Core library | `latest` |
+| `release @khoralabs/agent-capabilities-spec` | Smithy models | `latest` |
+| `release @khoralabs/agent-capabilities-ai-sdk` | AI SDK adapter | `beta` |
+
+Requires the `NPM_TOKEN` repository secret.

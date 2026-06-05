@@ -1,0 +1,113 @@
+name: release @khoralabs/agent-capabilities
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Semver to publish (e.g. 0.1.0)"
+        required: true
+        type: string
+      tag:
+        description: "npm dist-tag"
+        required: true
+        type: choice
+        default: latest
+        options:
+          - latest
+          - next
+      dry_run:
+        description: "Run npm publish --dry-run; skip git tag/push"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
+      NPM_TAG: ${{ inputs.tag }}
+      DRY_RUN: ${{ inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: install
+        run: bun install --frozen-lockfile
+
+      - name: test
+        run: bun run --filter '@khoralabs/agent-capabilities' test
+
+      - name: typecheck
+        run: bun run --filter '@khoralabs/agent-capabilities' typecheck
+
+      - name: build
+        run: bun run --filter '@khoralabs/agent-capabilities' build
+
+      - name: stage release package
+        run: bun run scripts/stage-agent-capabilities-release.ts capabilities "$VERSION"
+
+      - name: configure npm auth
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NPM_TOKEN:-}" ]; then
+            echo "::error::NPM_TOKEN repository secret is empty or unset"
+            exit 1
+          fi
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$HOME/.npmrc"
+
+      - name: verify npm publish access
+        run: |
+          set -euo pipefail
+          echo "npm user: $(npm whoami)"
+          echo "Dry-run (404 here = no publish rights on @khoralabs scope)..."
+          (cd release/capabilities && npm publish --access public --tag "$NPM_TAG" --dry-run)
+
+      - name: publish
+        working-directory: release/capabilities
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            npm publish --access public --tag "$NPM_TAG" --dry-run
+          else
+            npm publish --access public --tag "$NPM_TAG"
+          fi
+
+      - name: bump source version
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          node -e "
+            const fs = require('node:fs');
+            const p = 'packages/capabilities/package.json';
+            const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
+            pkg.version = process.env.VERSION;
+            delete pkg.private;
+            fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
+          "
+
+      - name: commit version bump
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/capabilities/package.json
+          git diff --cached --quiet && echo "::warning::package.json version unchanged" && exit 0
+          git commit -m "release @khoralabs/agent-capabilities v${VERSION}"
+          git push origin HEAD
+
+      - name: tag and push
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "agent-capabilities-v${VERSION}"
+          HUSKY=0 git push origin "agent-capabilities-v${VERSION}"
