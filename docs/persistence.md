@@ -1,5 +1,7 @@
 # Persistence (`AgentCapabilitiesPersistence`)
 
+**See also:** [attribution and telemetry](attribution-telemetry.md) — hooks, per-turn capture recipe, and what to persist.
+
 The canonical storage contract is Smithy `AgentCapabilitiesPersistenceService` in `@khoralabs/agent-capabilities-spec`. The TypeScript package provides a matching interface and a reference **in-memory** backend.
 
 ## SQLite analogy

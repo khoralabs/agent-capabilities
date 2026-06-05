@@ -46,6 +46,7 @@
     "example:dynamic": "bun run examples/02-dynamic-toolkit.ts",
     "example:capabilities": "bun run examples/03-capability-snapshot.ts",
     "example:diff": "bun run examples/04-capability-diff.ts",
+    "example:session-attribution": "bun run examples/05-session-attribution.ts",
     "capability-diff": "bun run src/cli/capability-diff.ts"
   },
   "devDependencies": {

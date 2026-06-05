@@ -27,6 +27,6 @@ bun run build
 
 Publishable packages emit `dist/` via `tsc` (Node 18+). See [`packages/capabilities/README.md`](packages/capabilities/README.md) for API docs.
 
-**Docs:** [hashing](docs/hashing.md), [Standard Schema](docs/standard-schema.md), [persistence](docs/persistence.md), [host helpers](docs/host-helpers.md), [capability diff CLI](docs/capability-diff-cli.md), [AI SDK policies](docs/ai-sdk-policies.md), [invocation context](docs/invocation-context.md), [envelope schema versions](docs/schema-versions.md).
+**Docs:** [attribution and telemetry](docs/attribution-telemetry.md), [hashing](docs/hashing.md), [Standard Schema](docs/standard-schema.md), [persistence](docs/persistence.md), [host helpers](docs/host-helpers.md), [capability diff CLI](docs/capability-diff-cli.md), [AI SDK policies](docs/ai-sdk-policies.md), [invocation context](docs/invocation-context.md), [envelope schema versions](docs/schema-versions.md).
 
 **Community:** [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

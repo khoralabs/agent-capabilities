@@ -1,5 +1,7 @@
 # Optional host and UX helpers
 
+**See also:** [attribution and telemetry](attribution-telemetry.md) — pipeline hook payloads and `elapsedMs` in `onToolExecuted`.
+
 These exports are **not required** for capability hashing, capture, or persistence. Use them when they fit your app shell, examples, or tests.
 
 ## `elapsedMs(start)`

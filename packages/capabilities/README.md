@@ -65,6 +65,8 @@ More runnable scripts under `examples/` (see below). For Vercel AI SDK, use [`@k
 
 **One orchestration implementation.** For a product, the only required **orchestration** at the session layer is a **`SessionRunner`**: implement **`run`** as `({ agent, input, context }) => output`. Everything else there is optional: **hooks** for cross-cutting behavior and **`ctx`** for merged static context and async resolvers. Session hooks wrap **one** invocation of `run`; they do not replace it.
 
+**Attribution and telemetry.** See the [attribution and telemetry guide](../../docs/attribution-telemetry.md) for hook layers, the per-turn persist recipe, and `invocationContext` vs `sessionContext` vs merged `SessionContext`.
+
 **Two hook layers** — bind functions to the right layer so “hooks” does not mean “rewrite the tool loop”:
 
 1. **Toolkit pipeline hooks** — `onPolicyEvaluated` / `onToolExecuted`, merged via `mergeToolPipelineHooks`, on **`toolkit` / `tool`** definitions and optionally **`ToolkitContext.pipelineHooks`**. These run **inside** composable evaluation while policies and tools execute. Use for telemetry or side effects around policy/tool execution, not for substituting your own evaluation loop.
@@ -188,9 +190,12 @@ bun run example:static
 bun run example:dynamic
 bun run example:capabilities
 bun run example:diff
+bun run example:session-attribution
 ```
 
 `01-static-toolkit.ts` / `02-dynamic-toolkit.ts` — evaluate composables and map tools via `@khoralabs/agent-capabilities-ai-sdk`.
+
+`05-session-attribution.ts` — session host with capture in `run` and `recordTurnAttribution` in `onAfterRun` (see [attribution and telemetry guide](../../docs/attribution-telemetry.md)).
 
 ## Tests
 
