@@ -33,6 +33,9 @@ jobs:
       - name: Test @khoralabs/agent-capabilities-ai-sdk
         run: bun run --filter '@khoralabs/agent-capabilities-ai-sdk' test
 
+      - name: Test @khoralabs/agent-capabilities-otel
+        run: bun run --filter '@khoralabs/agent-capabilities-otel' test
+
   smithy:
     runs-on: ubuntu-latest
     steps:

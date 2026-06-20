@@ -10,6 +10,7 @@ import path from "node:path";
 export const RELEASE_PACKAGES = [
   "capabilities",
   "capabilities-ai-sdk",
+  "capabilities-otel",
   "capabilities-spec",
 ] as const;
 export type ReleasePackage = (typeof RELEASE_PACKAGES)[number];
@@ -17,6 +18,7 @@ export type ReleasePackage = (typeof RELEASE_PACKAGES)[number];
 const PACKAGE_KIND = {
   capabilities: "dist",
   "capabilities-ai-sdk": "dist",
+  "capabilities-otel": "dist",
   "capabilities-spec": "spec",
 } as const satisfies Record<ReleasePackage, "dist" | "spec">;
 
@@ -138,7 +140,7 @@ if (import.meta.main) {
   const version = process.argv[3];
   if (!packageName || !isReleasePackage(packageName)) {
     console.error(
-      "usage: stage-agent-capabilities-release.ts <capabilities|capabilities-ai-sdk|capabilities-spec> <semver>",
+      "usage: stage-agent-capabilities-release.ts <capabilities|capabilities-ai-sdk|capabilities-otel|capabilities-spec> <semver>",
     );
     process.exit(1);
   }

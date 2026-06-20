@@ -7,9 +7,9 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "build": "bun run --filter '@khoralabs/agent-capabilities' build && bun run --filter '@khoralabs/agent-capabilities-ai-sdk' build",
-    "test": "bun run --filter '@khoralabs/agent-capabilities' test && bun run --filter '@khoralabs/agent-capabilities-ai-sdk' test",
-    "typecheck": "bun run --filter '@khoralabs/agent-capabilities' typecheck && bun run --filter '@khoralabs/agent-capabilities-ai-sdk' typecheck",
+    "build": "bun run --filter '@khoralabs/agent-capabilities' build && bun run --filter '@khoralabs/agent-capabilities-ai-sdk' build && bun run --filter '@khoralabs/agent-capabilities-otel' build",
+    "test": "bun run --filter '@khoralabs/agent-capabilities' test && bun run --filter '@khoralabs/agent-capabilities-ai-sdk' test && bun run --filter '@khoralabs/agent-capabilities-otel' test",
+    "typecheck": "bun run --filter '@khoralabs/agent-capabilities' typecheck && bun run --filter '@khoralabs/agent-capabilities-ai-sdk' typecheck && bun run --filter '@khoralabs/agent-capabilities-otel' typecheck",
     "format": "biome check --write .",
     "format:check": "biome check .",
     "lint": "biome check ."

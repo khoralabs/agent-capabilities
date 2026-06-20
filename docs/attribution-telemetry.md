@@ -140,6 +140,61 @@ const hooks = mergeToolPipelineHooks(existing, {
 });
 ```
 
+## OpenTelemetry and Pino (`@khoralabs/agent-capabilities-otel`)
+
+For production-ready spans, metrics, and structured logs without wiring hooks yourself, use the OTel adapter package:
+
+```ts
+import { mergeToolPipelineHooks } from "@khoralabs/agent-capabilities";
+import {
+  createAgentTelemetry,
+  invocationContextAttributes,
+  sessionContextAttributes,
+} from "@khoralabs/agent-capabilities-otel";
+
+const tel = createAgentTelemetry({
+  tracer,
+  meter,
+  logger,
+  attributeMappers: {
+    sessionContext: sessionContextAttributes({
+      allowlist: ["tenantId", "subjectId"],
+      prefix: "session.",
+    }),
+    invocationContext: invocationContextAttributes(),
+  },
+});
+
+registry.createSession(agentId, {
+  hooks: tel.sessionHooks,
+  run: async ({ agent, context }) => {
+    const ctx = {
+      env: context,
+      pipelineHooks: mergeToolPipelineHooks(tel.pipelineHooks, yourAuditHooks),
+    };
+    const capture = await tel.traceAffordanceEvaluation(() =>
+      captureAgentSnapshotEnvelope({
+        agent,
+        ctx,
+        invocationContext: { tenantId: context.tenantId as string },
+      }),
+    );
+    tel.linkCapture({
+      link: capture.link,
+      toolRefs: capture.toolRefs,
+      invocationContext: { tenantId: context.tenantId as string },
+    });
+    // ...
+  },
+});
+```
+
+**Coexisting with custom hooks:** session and pipeline hooks are additive — the registry runs every registered handler at each stage in order (`register` → `createSession` → fluent `.onAfterRun`). Telemetry does not replace your middleware. Use one `createAgentTelemetry()` instance per session. Compose pipeline hooks with `mergeToolPipelineHooks(tel.pipelineHooks, yours)`.
+
+**Domain signals:** use `attributeMappers` for tenant/subject/trace fields, `linkCapture` for tool refs + hashes, `setSessionAttributes` / `addSessionEvent` for ad-hoc business events. Attribute prefix convention: `agent.*`, `session.*`, `invocation.*`, `tool.*`, `policy.*`.
+
+Full guide: [packages/capabilities-otel/README.md](../packages/capabilities-otel/README.md).
+
 ## Capture knobs
 
 | Option | Default | Purpose |
@@ -161,4 +216,4 @@ Envelope version: `AGENT_SNAPSHOT_ENVELOPE_VERSION` (`"1"`). Migration policy: [
 | `sessionId` | `createSession({ sessionId })` + persistence args | Durable session row key |
 | `messageId` | `sessionContext` | Per-message correlation without changing hashes |
 
-OpenTelemetry span examples are planned for a follow-up release.
+OpenTelemetry span names, metrics, and Pino event names: [capabilities-otel README](../packages/capabilities-otel/README.md).
