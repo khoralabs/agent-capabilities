@@ -57,6 +57,9 @@ jobs:
       - name: stage release package
         run: bun run scripts/stage-agent-capabilities-release.ts capabilities-ai-sdk "$VERSION"
 
+      - name: verify staged release
+        run: bun run scripts/verify-staged-release.ts capabilities-ai-sdk
+
       - name: configure npm auth
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
