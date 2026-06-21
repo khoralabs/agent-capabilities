@@ -1,6 +1,6 @@
 {
   "name": "@khoralabs/agent-capabilities",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Composable toolkits, policy gates, and deterministic capability fingerprints for agent attribution.",
   "license": "MIT",
   "type": "module",
