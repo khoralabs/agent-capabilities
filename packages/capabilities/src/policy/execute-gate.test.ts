@@ -112,4 +112,21 @@ describe("gateToolPoliciesAtExecute", () => {
       runtime: { env: {}, policyResults: { snap: true } },
     });
   });
+
+  test("throws AgentSessionAbortedError when abortSignal is aborted", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const spec = {
+      name: "t",
+      inputSchema: schema,
+      instructions: "",
+      handler: async () => "ok",
+    };
+    await expect(
+      gateToolPoliciesAtExecute({
+        spec,
+        runtime: { env: {}, abortSignal: controller.signal },
+      }),
+    ).rejects.toThrow("Agent session aborted");
+  });
 });

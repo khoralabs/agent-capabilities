@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import type { CapabilityLink, RegisteredAgent } from "@khoralabs/agent-capabilities";
+import { AgentSessionAbortedError } from "@khoralabs/agent-capabilities";
 import type { Span, Tracer } from "@opentelemetry/api";
 import { SpanStatusCode } from "@opentelemetry/api";
 import { createAgentTelemetry } from "./create-agent-telemetry.js";
@@ -279,4 +280,68 @@ test("setSessionAttributes and addSessionEvent attach to active session span", a
     name: "agent.domain.checkpoint",
     attributes: { step: "evaluated" },
   });
+});
+
+test("cancelled session ends span with OK status and cancelled attribute", async () => {
+  const { tracer, spans } = createRecordingTracer();
+  const sessionRunCounts: Array<{ ok: boolean | string }> = [];
+  const meter = {
+    createCounter: () => ({
+      add(_value: number, attrs: { ok: boolean | string }) {
+        sessionRunCounts.push({ ok: attrs.ok });
+      },
+    }),
+    createHistogram: () => ({ record: () => {} }),
+  };
+  const logs: Array<{ msg: string }> = [];
+  const logger = {
+    info: (_obj: unknown, msg: string) => logs.push({ msg }),
+    error: (_obj: unknown, msg: string) => logs.push({ msg }),
+    warn: () => {},
+    debug: () => {},
+  } as never;
+
+  const tel = createAgentTelemetry({ tracer, meter: meter as never, logger });
+
+  await tel.sessionHooks.onStart?.({ agent: mockAgent, input: {} });
+  await tel.sessionHooks.onError?.({
+    agent: mockAgent,
+    input: {},
+    context: {},
+    error: new AgentSessionAbortedError(),
+  });
+
+  const session = spans.find((s) => s.name === "agent.session");
+  expect(session?.attributes["agent.session.cancelled"]).toBe(true);
+  expect(session?.status?.code).toBe(SpanStatusCode.OK);
+  expect(sessionRunCounts).toEqual([{ ok: "cancelled" }]);
+  expect(logs.some((l) => l.msg === "agent.session.cancelled")).toBe(true);
+  expect(logs.some((l) => l.msg === "agent.session.error")).toBe(false);
+});
+
+test("non-abort error keeps ERROR span status", async () => {
+  const { tracer, spans } = createRecordingTracer();
+  const sessionRunCounts: Array<{ ok: boolean | string }> = [];
+  const meter = {
+    createCounter: () => ({
+      add(_value: number, attrs: { ok: boolean | string }) {
+        sessionRunCounts.push({ ok: attrs.ok });
+      },
+    }),
+    createHistogram: () => ({ record: () => {} }),
+  };
+  const tel = createAgentTelemetry({ tracer, meter: meter as never });
+
+  await tel.sessionHooks.onStart?.({ agent: mockAgent, input: {} });
+  await tel.sessionHooks.onError?.({
+    agent: mockAgent,
+    input: {},
+    context: {},
+    error: new Error("runner failed"),
+  });
+
+  const session = spans.find((s) => s.name === "agent.session");
+  expect(session?.attributes["agent.session.cancelled"]).toBeUndefined();
+  expect(session?.status?.code).toBe(SpanStatusCode.ERROR);
+  expect(sessionRunCounts).toEqual([{ ok: false }]);
 });

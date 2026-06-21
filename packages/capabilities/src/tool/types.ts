@@ -10,6 +10,8 @@ export type ToolRuntimeContext<Env = unknown> = {
   namespace?: string;
   agentId?: string;
   agentName?: string;
+  /** Session cancellation signal (conventional; set by {@link createAgentRegistry} when configured). */
+  abortSignal?: AbortSignal;
   /** From `evaluateComposable(..., { resolvedPolicies })` — shared with snapshot-bound policies. */
   resolvedPolicies?: PolicyResultMap;
   /** Frozen policy id → allowed (replay); used when policy objects are not shared in-process. */

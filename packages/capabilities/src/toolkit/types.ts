@@ -6,6 +6,8 @@ export type ToolkitContext<Env = unknown> = {
   namespace?: string;
   agentId?: string;
   agentName?: string;
+  /** Session cancellation signal (conventional; set by {@link createAgentRegistry} when configured). */
+  abortSignal?: AbortSignal;
   /** Runtime-level hooks (merged last with toolkit + tool hooks). */
   pipelineHooks?: ToolPipelineHooks;
   /** Hooks accumulated from parent toolkit {@code hooks} options (excludes {@link pipelineHooks}). */

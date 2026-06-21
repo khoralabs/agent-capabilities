@@ -23,6 +23,34 @@ Pipeline hooks are **not hashed**. Session hooks are host orchestration only.
 - Persist in **`onAfterRun`** via `recordTurnAttribution` (after `run` returns).
 - On runner failure, **`onError`** runs and **`onAfterRun` does not**.
 
+### Session cancellation
+
+Pass an `AbortSignal` to `createSession({ signal })` (or override per run via `session.start(input, { signal })`). When the signal aborts:
+
+- Stages and `run` stop with **`AgentSessionAbortedError`** (check via `isAgentSessionAbortedError`).
+- The resolved **`SessionContext`** includes **`abortSignal`** when a signal is configured — forward it to `ToolkitContext` / `ToolRuntimeContext` and AI SDK calls (`streamText`, `generate`, etc.).
+- **`onError`** runs ( **`onAfterRun` does not** ). With `@khoralabs/agent-capabilities-otel`, cancellation logs `agent.session.cancelled` and sets span attribute `agent.session.cancelled = true` (OK status, not ERROR).
+
+```ts
+import {
+  AgentSessionAbortedError,
+  createAgentRegistry,
+  isAgentSessionAbortedError,
+} from "@khoralabs/agent-capabilities";
+
+const controller = new AbortController();
+const session = registry.createSession(agentId, { signal: controller.signal });
+
+try {
+  await session.start(input);
+} catch (err) {
+  if (isAgentSessionAbortedError(err)) {
+    // user cancelled — distinct from runner failure
+  }
+  throw err;
+}
+```
+
 ## Three context concepts
 
 Do not confuse these names:

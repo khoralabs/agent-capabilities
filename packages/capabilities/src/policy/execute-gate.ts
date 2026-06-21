@@ -1,3 +1,4 @@
+import { throwIfAborted } from "../agent/abort.js";
 import type { ToolSpec } from "../tool/types.js";
 import type { ToolkitContext } from "../toolkit/types.js";
 import type {
@@ -20,6 +21,7 @@ export type GateToolPoliciesAtExecuteArgs = {
     /** When `authoritative`, snapshot policies deny if id missing from cache. */
     policySnapshotMode?: "authoritative" | "hint";
     pipelineHooks?: import("./types.js").ToolPipelineHooks;
+    abortSignal?: AbortSignal;
   };
 };
 
@@ -75,6 +77,7 @@ export async function gateToolPoliciesAtExecute(
   args: GateToolPoliciesAtExecuteArgs,
 ): Promise<void> {
   const { spec, runtime } = args;
+  throwIfAborted(runtime.abortSignal);
   const policies = spec.policies ?? [];
   if (policies.length === 0) {
     return;
@@ -88,6 +91,7 @@ export async function gateToolPoliciesAtExecute(
     namespace: runtime.namespace,
     agentId: runtime.agentId,
     agentName: runtime.agentName,
+    abortSignal: runtime.abortSignal,
     pipelineHooks: runtime.pipelineHooks,
   };
 

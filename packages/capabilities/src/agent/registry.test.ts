@@ -4,6 +4,7 @@ import { tool } from "../tool/tool.js";
 import { createToolRegistry } from "../tool/tool-registry.js";
 import { hashToolComposableStatic } from "../tool/tool-static.js";
 import { toolkit } from "../toolkit/toolkit.js";
+import { AgentSessionAbortedError } from "./abort.js";
 import { createAgentRegistry } from "./agent-registry.js";
 import { createRegisteredAgent } from "./registered-agent.js";
 
@@ -246,6 +247,103 @@ describe("createAgentRegistry", () => {
       fromRegistryResolver: 2,
       fromSessionResolver: 3,
     });
+  });
+
+  test("pre-aborted signal throws before runner and skips onAfterRun", async () => {
+    const reg = createAgentRegistry();
+    const graph = tool({ name: "n", inputSchema: schema, handler: async () => 0 });
+    const { agent } = await createRegisteredAgent({
+      agentId: "abort-pre",
+      name: "AbortPre",
+      instructions: [],
+      rootComposable: graph,
+    });
+    const seen: string[] = [];
+    await reg.register(agent, {
+      hooks: {
+        onStart: () => {
+          seen.push("onStart");
+        },
+        onAfterRun: () => {
+          seen.push("onAfterRun");
+        },
+        onError: () => {
+          seen.push("onError");
+        },
+      },
+      run: async () => {
+        seen.push("run");
+        return 1;
+      },
+    });
+    const controller = new AbortController();
+    controller.abort();
+    const session = reg.createSession("abort-pre", { signal: controller.signal });
+    await expect(session.start(undefined)).rejects.toBeInstanceOf(AgentSessionAbortedError);
+    expect(seen).toEqual(["onError"]);
+    expect(seen).not.toContain("run");
+    expect(seen).not.toContain("onAfterRun");
+  });
+
+  test("signal injects abortSignal into session context", async () => {
+    const reg = createAgentRegistry();
+    const graph = tool({ name: "n", inputSchema: schema, handler: async () => 0 });
+    const { agent } = await createRegisteredAgent({
+      agentId: "abort-ctx",
+      name: "AbortCtx",
+      instructions: [],
+      rootComposable: graph,
+    });
+    const controller = new AbortController();
+    await reg.register(agent, {
+      run: async ({ context }) => context,
+    });
+    const out = await reg
+      .createSession("abort-ctx", { signal: controller.signal })
+      .start<void, { abortSignal?: AbortSignal }>(undefined);
+    expect(out.abortSignal).toBe(controller.signal);
+  });
+
+  test("mid-run abort rejects with AgentSessionAbortedError", async () => {
+    const reg = createAgentRegistry();
+    const graph = tool({ name: "n", inputSchema: schema, handler: async () => 0 });
+    const { agent } = await createRegisteredAgent({
+      agentId: "abort-mid",
+      name: "AbortMid",
+      instructions: [],
+      rootComposable: graph,
+    });
+    const controller = new AbortController();
+    await reg.register(agent, {
+      run: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        return "done";
+      },
+    });
+    const session = reg.createSession("abort-mid", { signal: controller.signal });
+    const pending = session.start(undefined);
+    setTimeout(() => controller.abort(), 5);
+    await expect(pending).rejects.toBeInstanceOf(AgentSessionAbortedError);
+  });
+
+  test("start options signal overrides session signal", async () => {
+    const reg = createAgentRegistry();
+    const graph = tool({ name: "n", inputSchema: schema, handler: async () => 0 });
+    const { agent } = await createRegisteredAgent({
+      agentId: "abort-override",
+      name: "AbortOverride",
+      instructions: [],
+      rootComposable: graph,
+    });
+    const sessionSignal = new AbortController().signal;
+    const runSignal = new AbortController().signal;
+    await reg.register(agent, {
+      run: async ({ context }) => (context as { abortSignal?: AbortSignal }).abortSignal,
+    });
+    const out = await reg
+      .createSession("abort-override", { signal: sessionSignal })
+      .start<void, AbortSignal | undefined>(undefined, { signal: runSignal });
+    expect(out).toBe(runSignal);
   });
 });
 

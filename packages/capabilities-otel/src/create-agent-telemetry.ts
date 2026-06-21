@@ -1,4 +1,5 @@
 import type { CapabilityLink, PolicyEvaluatedPayload } from "@khoralabs/agent-capabilities";
+import { isAgentSessionAbortedError } from "@khoralabs/agent-capabilities";
 import {
   type Context,
   type Counter,
@@ -25,8 +26,11 @@ function errorMessage(error: unknown): string {
   return String(error);
 }
 
-function endSessionSpan(span: Span, ok: boolean, error?: unknown): void {
-  if (!ok && error !== undefined) {
+function endSessionSpan(span: Span, outcome: "ok" | "error" | "cancelled", error?: unknown): void {
+  if (outcome === "cancelled") {
+    span.setAttribute("agent.session.cancelled", true);
+    span.setStatus({ code: SpanStatusCode.OK });
+  } else if (outcome === "error" && error !== undefined) {
     span.recordException(error instanceof Error ? error : new Error(errorMessage(error)));
     span.setStatus({ code: SpanStatusCode.ERROR, message: errorMessage(error) });
   } else {
@@ -208,7 +212,7 @@ export function createAgentTelemetry(options: AgentTelemetryOptions = {}): Agent
       if (sessionSpan) {
         sessionSpan.setAttribute("agent.session.duration_ms", durationMs);
         spanHooks?.onSessionSpanEnd?.(sessionSpan, { agent, ok: true, durationMs });
-        endSessionSpan(sessionSpan, true);
+        endSessionSpan(sessionSpan, "ok");
         sessionSpan = undefined;
         sessionContext = undefined;
       }
@@ -218,22 +222,34 @@ export function createAgentTelemetry(options: AgentTelemetryOptions = {}): Agent
 
     onError({ agent, error }) {
       const durationMs = Date.now() - sessionStartMs;
+      const cancelled = isAgentSessionAbortedError(error);
       if (sessionSpan) {
         sessionSpan.setAttribute("agent.session.duration_ms", durationMs);
-        spanHooks?.onSessionSpanEnd?.(sessionSpan, { agent, ok: false, durationMs });
-        endSessionSpan(sessionSpan, false, error);
+        spanHooks?.onSessionSpanEnd?.(sessionSpan, {
+          agent,
+          ok: !cancelled,
+          durationMs,
+        });
+        endSessionSpan(sessionSpan, cancelled ? "cancelled" : "error", error);
         sessionSpan = undefined;
         sessionContext = undefined;
       }
-      sessionRuns?.add(1, { "agent.id": agent.agentId, ok: false });
-      logger?.error(
-        {
-          agentId: agent.agentId,
-          durationMs,
-          err: error instanceof Error ? error : errorMessage(error),
-        },
-        "agent.session.error",
-      );
+      sessionRuns?.add(1, {
+        "agent.id": agent.agentId,
+        ok: cancelled ? "cancelled" : false,
+      });
+      if (cancelled) {
+        logger?.info({ agentId: agent.agentId, durationMs }, "agent.session.cancelled");
+      } else {
+        logger?.error(
+          {
+            agentId: agent.agentId,
+            durationMs,
+            err: error instanceof Error ? error : errorMessage(error),
+          },
+          "agent.session.error",
+        );
+      }
     },
   };
 

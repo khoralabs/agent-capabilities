@@ -6,6 +6,7 @@ import {
   gateToolPoliciesAtExecute,
   type ToolRuntimeContext,
   type ToolSpec,
+  throwIfAborted,
 } from "@khoralabs/agent-capabilities";
 import { type Tool, tool } from "ai";
 
@@ -17,6 +18,7 @@ export function toolSpecToAiTool(
     description: spec.description,
     inputSchema: spec.inputSchema as Tool<unknown, unknown>["inputSchema"],
     execute: async (input: unknown, options) => {
+      throwIfAborted(runtime.abortSignal);
       await gateToolPoliciesAtExecute({ spec, runtime });
       return spec.handler(runtime, input, options);
     },

@@ -1,6 +1,12 @@
 import { expect, test } from "bun:test";
 import type { PolicyResultMap, ToolRuntimeContext, ToolSpec } from "@khoralabs/agent-capabilities";
-import { evaluateComposable, policy, tool, toolkit } from "@khoralabs/agent-capabilities";
+import {
+  AgentSessionAbortedError,
+  evaluateComposable,
+  policy,
+  tool,
+  toolkit,
+} from "@khoralabs/agent-capabilities";
 import z from "zod";
 import { toolMapToAiTools, toolSpecToAiTool } from "./tool-spec-to-ai-sdk.js";
 
@@ -161,4 +167,36 @@ test("policies already evaluated: mixed snapshot and live bindings on one turn",
   await execute({ n: 1 }, { toolCallId: "mixed", messages: [] } as never);
   expect(snapCount).toBe(0);
   expect(liveCount).toBe(1);
+});
+
+test("aborted runtime abortSignal rejects before policy gate or handler", async () => {
+  let policyEvalCount = 0;
+  let handlerCount = 0;
+  const p = policy("gate", async () => {
+    policyEvalCount++;
+    return true;
+  });
+  const spec: ToolSpec = {
+    name: "noop",
+    inputSchema: z.object({}).strict(),
+    instructions: "",
+    policies: [p],
+    handler: async () => {
+      handlerCount++;
+      return "done";
+    },
+  };
+  const controller = new AbortController();
+  controller.abort();
+  const runtime: ToolRuntimeContext = { env: {}, abortSignal: controller.signal };
+  const aiTool = toolSpecToAiTool(spec, runtime);
+  const execute = aiTool.execute;
+  if (typeof execute !== "function") {
+    throw new Error("expected execute");
+  }
+  await expect(
+    execute({}, { toolCallId: "abort-test", messages: [] } as never),
+  ).rejects.toBeInstanceOf(AgentSessionAbortedError);
+  expect(policyEvalCount).toBe(0);
+  expect(handlerCount).toBe(0);
 });

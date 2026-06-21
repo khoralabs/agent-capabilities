@@ -2,6 +2,7 @@ import type { AgentCapabilitiesPersistence } from "../persistence/interface.js";
 import { createMemoryAgentCapabilitiesPersistence } from "../persistence/memory.js";
 import { defaultOpContext, registeredAgentToRegistrationRow } from "../persistence/row-builders.js";
 import type { CapabilitiesOpContext } from "../persistence/types.js";
+import { raceWithAbort, throwIfAborted } from "./abort.js";
 import type { RegisteredAgent } from "./types.js";
 
 type MaybePromise<T> = T | Promise<T>;
@@ -88,6 +89,13 @@ export type CreateSessionOptions<
   run?: RegisteredSessionRunner;
   /** Host session id for attribution persistence (e.g. with {@link recordTurnAttribution}). */
   sessionId?: string;
+  /** When aborted, session stages and {@link run} stop with {@link AgentSessionAbortedError}. */
+  signal?: AbortSignal;
+};
+
+export type StartSessionOptions = {
+  /** Overrides the signal passed to {@link createSession} for this run only. */
+  signal?: AbortSignal;
 };
 
 export type CreateAgentRegistryOptions = {
@@ -114,7 +122,10 @@ export type AgentSession = {
   onBeforeRun: (hook: NonNullable<AgentSessionHooks["onBeforeRun"]>) => AgentSession;
   onAfterRun: (hook: NonNullable<AgentSessionHooks["onAfterRun"]>) => AgentSession;
   onError: (hook: NonNullable<AgentSessionHooks["onError"]>) => AgentSession;
-  start: <Input = unknown, Output = unknown>(input: Input) => Promise<Output>;
+  start: <Input = unknown, Output = unknown>(
+    input: Input,
+    options?: StartSessionOptions,
+  ) => Promise<Output>;
 };
 
 export type AgentRegistry = {
@@ -196,6 +207,7 @@ export function createAgentRegistry(options?: CreateAgentRegistryOptions): Agent
     const sessionCtx = toArray(sessionOptions.ctx);
     const sessionRun = sessionOptions.run;
     const sessionId = sessionOptions.sessionId;
+    const sessionSignal = sessionOptions.signal;
 
     async function runStage(
       stage: keyof AgentSessionHooks,
@@ -274,19 +286,36 @@ export function createAgentRegistry(options?: CreateAgentRegistryOptions): Agent
         sessionHooks.onError = hook;
         return session;
       },
-      async start<Input = unknown, Output = unknown>(input: Input): Promise<Output> {
+      async start<Input = unknown, Output = unknown>(
+        input: Input,
+        startOptions?: StartSessionOptions,
+      ): Promise<Output> {
         const agent = registered.agent;
-        await runStage("onStart", { agent, input });
-        await runStage("onBeforeContext", { agent, input });
-        const context = await resolveContext(input);
-        await runStage("onAfterContext", { agent, input, context });
-        await runStage("onBeforeRun", { agent, input, context });
-        const runner = sessionRun ?? registered.run;
-        if (!runner) {
-          throw new Error(`no session runner configured for agent: ${agentId}`);
-        }
+        const signal = startOptions?.signal ?? sessionSignal;
+        let context: SessionContext = {};
         try {
-          const output = (await runner({ agent, input, context })) as Output;
+          throwIfAborted(signal);
+          await runStage("onStart", { agent, input });
+          throwIfAborted(signal);
+          await runStage("onBeforeContext", { agent, input });
+          throwIfAborted(signal);
+          context = await resolveContext(input);
+          if (signal) {
+            context = mergeContext(context, { abortSignal: signal });
+          }
+          throwIfAborted(signal);
+          await runStage("onAfterContext", { agent, input, context });
+          throwIfAborted(signal);
+          await runStage("onBeforeRun", { agent, input, context });
+          throwIfAborted(signal);
+          const runner = sessionRun ?? registered.run;
+          if (!runner) {
+            throw new Error(`no session runner configured for agent: ${agentId}`);
+          }
+          const output = (await raceWithAbort(
+            Promise.resolve(runner({ agent, input, context })),
+            signal,
+          )) as Output;
           await runStage("onAfterRun", { agent, input, context, output });
           return output;
         } catch (error) {

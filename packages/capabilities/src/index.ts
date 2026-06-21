@@ -1,3 +1,9 @@
+export {
+  AgentSessionAbortedError,
+  isAgentSessionAbortedError,
+  raceWithAbort,
+  throwIfAborted,
+} from "./agent/abort.js";
 export type {
   AgentRegistry,
   AgentSession,
@@ -10,6 +16,7 @@ export type {
   SessionContext,
   SessionContextInput,
   SessionRunner,
+  StartSessionOptions,
 } from "./agent/agent-registry.js";
 export { createAgentRegistry } from "./agent/agent-registry.js";
 export type {
