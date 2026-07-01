@@ -53,7 +53,7 @@
     "@khoralabs/agent-capabilities-ai-sdk": "workspace:*",
     "@types/bun": "latest",
     "bun-types": "latest",
-    "ai": "^6.0.142",
+    "ai": "^7.0.9",
     "typescript": "^5",
     "zod": "^4"
   },
