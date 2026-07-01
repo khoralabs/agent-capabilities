@@ -1,6 +1,6 @@
 {
   "name": "@khoralabs/agent-capabilities-otel",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "OpenTelemetry and Pino telemetry adapter for @khoralabs/agent-capabilities (beta).",
   "license": "MIT",
   "type": "module",
