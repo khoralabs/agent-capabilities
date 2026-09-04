@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.12/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -10,6 +10,8 @@
       "**",
       "!**/node_modules",
       "!**/dist",
+      "!**/out",
+      "!**/release",
       "!**/packages/**/*/dist",
       "!**/packages/capabilities-spec/build",
       "!**/bun.lock",
@@ -25,6 +27,7 @@
     "lineWidth": 100
   },
   "assist": {
+    "enabled": true,
     "actions": {
       "source": {
         "organizeImports": "on"
@@ -40,7 +43,8 @@
   "javascript": {
     "formatter": {
       "quoteStyle": "double",
-      "semicolons": "always"
+      "semicolons": "always",
+      "trailingCommas": "all"
     }
   }
 }

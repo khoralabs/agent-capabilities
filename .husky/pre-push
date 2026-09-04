@@ -3,7 +3,5 @@ set -e
 
 cd "$(git rev-parse --show-toplevel)"
 
-echo "pre-push: format, typecheck, test…"
-bun run format:check
-bun run typecheck
-bun run test
+echo "pre-push: format, typecheck, test, build…"
+bun run verify
