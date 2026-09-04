@@ -100,6 +100,8 @@ jobs:
 
       - name: commit version bump
         if: ${{ inputs.dry_run == false }}
+        env:
+          HUSKY: "0"
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -110,8 +112,10 @@ jobs:
 
       - name: tag and push
         if: ${{ inputs.dry_run == false }}
+        env:
+          HUSKY: "0"
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag "agent-capabilities-otel-v${VERSION}"
-          HUSKY=0 git push origin "agent-capabilities-otel-v${VERSION}"
+          git push origin "agent-capabilities-otel-v${VERSION}"
